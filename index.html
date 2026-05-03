@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · Coach Djibril</title>
+<style>
+:root{--bg:#0a0a0a;--card:#141414;--text:#f0f0f0;--muted:#888;--pink:#ff2e93;--cyan:#00d4ff;--green:#00ff88;--orange:#ff7a3d}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+header{background:var(--card);border-bottom:1px solid rgba(255,255,255,.08);padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
+header .brand{font-weight:700;color:var(--cyan);text-decoration:none}
+header .label{font-size:.7rem;color:var(--pink);text-transform:uppercase;letter-spacing:1px}
+main{max-width:1000px;margin:0 auto;padding:24px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.stat{background:var(--card);border-radius:12px;padding:20px;text-align:center;border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:border .2s}
+.stat:hover{border-color:var(--cyan)}
+.stat .num{font-size:2rem;font-weight:800}
+.stat .label{font-size:.75rem;color:var(--muted);margin-top:4px}
+.stat.active{border-color:var(--cyan)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:12px;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,.06)}
+td{padding:14px 12px;border-bottom:1px solid rgba(255,255,255,.04);font-size:.9rem}
+tr:hover{background:rgba(255,255,255,.02)}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px}
+.dot.green{background:var(--green)}
+.dot.orange{background:var(--orange)}
+.dot.red{background:#ff4444}
+.badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:.7rem;font-weight:600}
+.badge.ok{background:rgba(0,255,136,.15);color:var(--green)}
+.badge.warn{background:rgba(255,170,0,.15);color:var(--orange)}
+.btn{background:var(--cyan);color:var(--bg);border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:.8rem}
+.btn:hover{opacity:.8}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:100;align-items:center;justify-content:center}
+.modal.show{display:flex}
+.modal-inner{background:var(--card);border-radius:16px;padding:32px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto}
+.modal-inner h2{margin-bottom:16px}
+.modal-inner p{margin-bottom:8px;font-size:.9rem}
+.modal-inner .close{float:right;background:none;border:none;color:var(--text);font-size:1.5rem;cursor:pointer}
+pre{background:#1a1a1a;padding:12px;border-radius:8px;font-size:.8rem;overflow-x:auto;margin-top:8px}
+</style>
+</head>
+<body>
+<header>
+ <a href="./" class="brand">PARDIN Djibril TRACKING · CONSOLE</a>
+ <span class="label">● COACH · ADMIN</span>
+</header>
+
+<main>
+ <h1 style="margin-bottom:16px">Mes élèves</h1>
+
+ <div class="stats" id="stats"></div>
+ 
+ <table>
+  <thead>
+   <tr><th>Élève</th><th>Email</th><th>Dernière activité</th><th>Statut</th><th></th></tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+ </table>
+</main>
+
+<div class="modal" id="modal">
+ <div class="modal-inner">
+  <button class="close" onclick="closeModal()">&times;</button>
+  <div id="modalContent"></div>
+ </div>
+</div>
+
+<script>
+const SB_URL = "https://nbnbsljqtolzzuqnkyae.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ibmJzbGpxdG9senp1cW5reWFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ0NDY4NjYsImV4cCI6MjA2MDAyMjg2Nn0.IrN0QzGqPBuBxNkLPJQJtlBkfGPLPSdHGL1RD4RmV4";
+
+let students = [];
+let filter = 'all';
+
+async function load() {
+ const res = await fetch(`${SB_URL}/rest/v1/students?order=last_active.desc&limit=50`, {
+  headers: {'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`}
+ });
+ students = await res.json();
+ render();
+}
+setInterval(load, 10000); // Refresh every 10s
+
+function render() {
+ const filtered = filter === 'all' ? students : 
+  filter === 'active' ? students.filter(s => s.data && Object.keys(s.data).length > 1) :
+  filter === 'inactive' ? students.filter(s => !s.data || Object.keys(s.data).length <= 1) :
+  students;
+
+ // Stats
+ const active = students.filter(s => s.data && Object.keys(s.data).length > 1).length;
+ const inactive = students.filter(s => !s.data || Object.keys(s.data).length <= 1).length;
+ document.getElementById('stats').innerHTML = `
+  <div class="stat${filter==='all'?' active':''}" onclick="setFilter('all')"><div class="num">${students.length}</div><div class="label">Total</div></div>
+  <div class="stat${filter==='active'?' active':''}" onclick="setFilter('active')"><div class="num" style="color:var(--green)">${active}</div><div class="label">Actifs</div></div>
+  <div class="stat${filter==='inactive'?' active':''}" onclick="setFilter('inactive')"><div class="num" style="color:var(--orange)">${inactive}</div><div class="label">Inactifs</div></div>
+ `;
+
+ // Table
+ document.getElementById('tbody').innerHTML = filtered.map(s => {
+  const hasData = s.data && Object.keys(s.data).length > 1;
+  const lastActive = s.last_active ? new Date(s.last_active).toLocaleDateString('fr-FR', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : 'Jamais';
+  return `<tr>
+   <td><span class="dot ${hasData?'green':'orange'}"></span>${s.prenom} ${s.nom}</td>
+   <td style="color:var(--muted)">${s.email}</td>
+   <td style="color:var(--muted);font-size:.8rem">${lastActive}</td>
+   <td><span class="badge ${hasData?'ok':'warn'}">${hasData?'Actif':'En attente'}</span></td>
+   <td><button class="btn" onclick="viewDetail('${s.id}')">Détail</button></td>
+  </tr>`;
+ }).join('');
+
+ if (filtered.length === 0) {
+  document.getElementById('tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:40px">Aucun élève. Partage le lien de l\'app aux étudiants.</td></tr>';
+ }
+}
+
+function setFilter(f) { filter = f; render(); }
+
+function viewDetail(id) {
+ const s = students.find(x => x.id === id);
+ if (!s) return;
+ const data = s.data || {};
+ document.getElementById('modalContent').innerHTML = `
+  <h2>${s.prenom} ${s.nom}</h2>
+  <p>📧 ${s.email}</p>
+  <p>🕐 Inscrit: ${new Date(s.created_at).toLocaleString('fr-FR')}</p>
+  <p>🟢 Dernière activité: ${s.last_active ? new Date(s.last_active).toLocaleString('fr-FR') : 'Jamais'}</p>
+  <hr style="border-color:rgba(255,255,255,.06);margin:16px 0">
+  <h3>Notes</h3>
+  <pre>${data.notes || '—'}</pre>
+  <h3>Objectifs</h3>
+  <pre>${data.goals || '—'}</pre>
+  <h3>Insights</h3>
+  <pre>${data.insights || '—'}</pre>
+ `;
+ document.getElementById('modal').classList.add('show');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+load();
+</script>
+</body>
+</html>
