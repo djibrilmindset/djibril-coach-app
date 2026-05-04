@@ -5,141 +5,87 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin · Coach Djibril</title>
 <style>
-:root{--bg:#0a0a0a;--card:#141414;--text:#f0f0f0;--muted:#888;--pink:#ff2e93;--cyan:#00d4ff;--green:#00ff88;--orange:#ff7a3d}
+:root{--bg:#060608;--card:#0f0f13;--text:#eaeaea;--muted:#7a7a8a;--pink:#e8366e;--cyan:#37b5e6;--green:#2dd4a8;--orange:#e8a836;--border:rgba(255,255,255,.06)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-header{background:var(--card);border-bottom:1px solid rgba(255,255,255,.08);padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
-header .brand{font-weight:700;color:var(--cyan);text-decoration:none}
-header .label{font-size:.7rem;color:var(--pink);text-transform:uppercase;letter-spacing:1px}
-main{max-width:1000px;margin:0 auto;padding:24px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
-.stat{background:var(--card);border-radius:12px;padding:20px;text-align:center;border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:border .2s}
-.stat:hover{border-color:var(--cyan)}
-.stat .num{font-size:2rem;font-weight:800}
-.stat .label{font-size:.75rem;color:var(--muted);margin-top:4px}
-.stat.active{border-color:var(--cyan)}
-table{width:100%;border-collapse:collapse}
-th{text-align:left;padding:12px;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,.06)}
-td{padding:14px 12px;border-bottom:1px solid rgba(255,255,255,.04);font-size:.9rem}
-tr:hover{background:rgba(255,255,255,.02)}
-.dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px}
-.dot.green{background:var(--green)}
-.dot.orange{background:var(--orange)}
-.dot.red{background:#ff4444}
-.badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:.7rem;font-weight:600}
-.badge.ok{background:rgba(0,255,136,.15);color:var(--green)}
-.badge.warn{background:rgba(255,170,0,.15);color:var(--orange)}
-.btn{background:var(--cyan);color:var(--bg);border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:.8rem}
-.btn:hover{opacity:.8}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:100;align-items:center;justify-content:center}
+header{background:var(--card);border-bottom:1px solid var(--border);padding:18px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+header .brand{font-weight:600;font-size:.9rem;color:var(--text);text-decoration:none;letter-spacing:-.01em}
+header .brand span{color:var(--cyan)}
+header .label{font-size:.65rem;color:var(--pink);text-transform:uppercase;letter-spacing:.15em;font-weight:600}
+main{max-width:1100px;margin:0 auto;padding:32px}
+h1{font-size:1.5rem;font-weight:600;margin-bottom:24px;letter-spacing:-.01em}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px}
+.stat{background:var(--card);border-radius:16px;padding:24px;text-align:center;border:1px solid var(--border);cursor:pointer;transition:all .2s}
+.stat:hover{border-color:rgba(255,255,255,.15);transform:translateY(-1px)}
+.stat.active{border-color:var(--cyan);background:rgba(55,181,230,.05)}
+.stat .num{font-size:2.4rem;font-weight:700;letter-spacing:-.02em;line-height:1}
+.stat .num.g{color:var(--green)}.stat .num.o{color:var(--orange)}.stat .num.r{color:#e85050}
+.stat .lbl{font-size:.72rem;color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:.05em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.card:hover{border-color:rgba(255,255,255,.12);transform:translateY(-2px)}
+.card::after{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:4px 0 0 4px}
+.card.active::after{background:var(--green)}
+.card.inactive::after{background:var(--orange)}
+.card .name{font-weight:600;font-size:.95rem;margin-bottom:4px}
+.card .email{font-size:.78rem;color:var(--muted);margin-bottom:12px}
+.card .meta{font-size:.7rem;color:var(--muted);display:flex;justify-content:space-between}
+.card .badge{font-size:.65rem;padding:3px 8px;border-radius:6px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge.ok{background:rgba(45,212,168,.12);color:var(--green)}
+.badge.warn{background:rgba(232,168,54,.12);color:var(--orange)}
+.empty{text-align:center;padding:60px;color:var(--muted);grid-column:1/-1}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:100;align-items:center;justify-content:center}
 .modal.show{display:flex}
-.modal-inner{background:var(--card);border-radius:16px;padding:32px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto}
-.modal-inner h2{margin-bottom:16px}
-.modal-inner p{margin-bottom:8px;font-size:.9rem}
-.modal-inner .close{float:right;background:none;border:none;color:var(--text);font-size:1.5rem;cursor:pointer}
-pre{background:#1a1a1a;padding:12px;border-radius:8px;font-size:.8rem;overflow-x:auto;margin-top:8px}
+.modal-inner{background:var(--card);border-radius:20px;padding:40px;max-width:520px;width:90%;max-height:80vh;overflow-y:auto;border:1px solid var(--border)}
+.modal-inner h2{margin-bottom:20px;font-weight:600}
+.modal-inner .close{float:right;background:none;border:none;color:var(--text);font-size:1.4rem;cursor:pointer;opacity:.6}
+.modal-inner .close:hover{opacity:1}
+.modal-inner p{margin-bottom:10px;font-size:.88rem;color:var(--muted)}
+.modal-inner h3{font-size:.9rem;margin:20px 0 8px;color:var(--cyan)}
+pre{background:rgba(255,255,255,.02);padding:14px;border-radius:10px;font-size:.8rem;overflow-x:auto;color:var(--muted);white-space:pre-wrap;word-break:break-word}
+@media(max-width:600px){.stats{grid-template-columns:1fr 1fr}header{padding:14px 16px}main{padding:20px 16px}}
 </style>
 </head>
 <body>
 <header>
- <a href="./" class="brand">PARDIN Djibril TRACKING · CONSOLE</a>
+ <a href="./" class="brand">PARDIN Djibril <span>TRACKING</span> · CONSOLE</a>
  <span class="label">● COACH · ADMIN</span>
 </header>
-
 <main>
- <h1 style="margin-bottom:16px">Mes élèves</h1>
-
+ <h1>Mes élèves</h1>
  <div class="stats" id="stats"></div>
- 
- <table>
-  <thead>
-   <tr><th>Élève</th><th>Email</th><th>Dernière activité</th><th>Statut</th><th></th></tr>
-  </thead>
-  <tbody id="tbody"></tbody>
- </table>
+ <div class="grid" id="grid"></div>
 </main>
-
-<div class="modal" id="modal">
- <div class="modal-inner">
-  <button class="close" onclick="closeModal()">&times;</button>
-  <div id="modalContent"></div>
- </div>
-</div>
+<div class="modal" id="modal"><div class="modal-inner"><button class="close" onclick="closeModal()">&times;</button><div id="modalContent"></div></div></div>
 
 <script>
-const SB_URL = "https://nbnbsljqtolzzuqnkyae.supabase.co";
-const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ibmJzbGpxdG9senp1cW5reWFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ0NDY4NjYsImV4cCI6MjA2MDAyMjg2Nn0.IrN0QzGqPBuBxNkLPJQJtlBkfGPLPSdHGL1RD4RmV4";
+const SB_URL="https://nbnbsljqtolzzuqnkyae.supabase.co";
+const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ibmJzbGpxdG9senp1cW5reWFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ0NDY4NjYsImV4cCI6MjA2MDAyMjg2Nn0.IrN0QzGqPBuBxNkLPJQJtlBkfGPLPSdHGL1RD4RmV4";
+let students=[],filter='all';
 
-let students = [];
-let filter = 'all';
-
-async function load() {
- const res = await fetch(`${SB_URL}/rest/v1/students?order=last_active.desc&limit=50`, {
-  headers: {'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`}
- });
- students = await res.json();
- render();
+async function load(){
+ const r=await fetch(`${SB_URL}/rest/v1/students?order=last_active.desc&limit=50`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`}});
+ students=await r.json();render()
 }
-setInterval(load, 10000); // Refresh every 10s
-
-function render() {
- const filtered = filter === 'all' ? students : 
-  filter === 'active' ? students.filter(s => s.data && Object.keys(s.data).length > 1) :
-  filter === 'inactive' ? students.filter(s => !s.data || Object.keys(s.data).length <= 1) :
-  students;
-
- // Stats
- const active = students.filter(s => s.data && Object.keys(s.data).length > 1).length;
- const inactive = students.filter(s => !s.data || Object.keys(s.data).length <= 1).length;
- document.getElementById('stats').innerHTML = `
-  <div class="stat${filter==='all'?' active':''}" onclick="setFilter('all')"><div class="num">${students.length}</div><div class="label">Total</div></div>
-  <div class="stat${filter==='active'?' active':''}" onclick="setFilter('active')"><div class="num" style="color:var(--green)">${active}</div><div class="label">Actifs</div></div>
-  <div class="stat${filter==='inactive'?' active':''}" onclick="setFilter('inactive')"><div class="num" style="color:var(--orange)">${inactive}</div><div class="label">Inactifs</div></div>
- `;
-
- // Table
- document.getElementById('tbody').innerHTML = filtered.map(s => {
-  const hasData = s.data && Object.keys(s.data).length > 1;
-  const lastActive = s.last_active ? new Date(s.last_active).toLocaleDateString('fr-FR', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : 'Jamais';
-  return `<tr>
-   <td><span class="dot ${hasData?'green':'orange'}"></span>${s.prenom} ${s.nom}</td>
-   <td style="color:var(--muted)">${s.email}</td>
-   <td style="color:var(--muted);font-size:.8rem">${lastActive}</td>
-   <td><span class="badge ${hasData?'ok':'warn'}">${hasData?'Actif':'En attente'}</span></td>
-   <td><button class="btn" onclick="viewDetail('${s.id}')">Détail</button></td>
-  </tr>`;
- }).join('');
-
- if (filtered.length === 0) {
-  document.getElementById('tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:40px">Aucun élève. Partage le lien de l\'app aux étudiants.</td></tr>';
- }
+function render(){
+ const f=filter==='all'?students:filter==='active'?students.filter(s=>s.data&&Object.keys(s.data).length>1):filter==='inactive'?students.filter(s=>!s.data||Object.keys(s.data).length<=1):students;
+ const a=students.filter(s=>s.data&&Object.keys(s.data).length>1).length,i=students.filter(s=>!s.data||Object.keys(s.data).length<=1).length;
+ document.getElementById('stats').innerHTML=`
+  <div class="stat${filter==='all'?' active':''}" onclick="setF('all')"><div class="num">${students.length}</div><div class="lbl">Tous</div></div>
+  <div class="stat${filter==='active'?' active':''}" onclick="setF('active')"><div class="num g">${a}</div><div class="lbl">Actifs</div></div>
+  <div class="stat${filter==='inactive'?' active':''}" onclick="setF('inactive')"><div class="num o">${i}</div><div class="lbl">En attente</div></div>
+  <div class="stat"><div class="num" style="color:var(--cyan)">${students.filter(s=>{const d=new Date(s.last_active);const n=new Date();return d>new Date(n-86400000)}).length}</div><div class="lbl">Aujourd'hui</div></div>`;
+ document.getElementById('grid').innerHTML=f.length?f.map(s=>{
+  const h=s.data&&Object.keys(s.data).length>1,d=s.last_active?new Date(s.last_active).toLocaleDateString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'Jamais';
+  return`<div class="card ${h?'active':'inactive'}" onclick="view('${s.id}')"><div class="name">${s.prenom} ${s.nom}</div><div class="email">${s.email}</div><div class="meta"><span>${d}</span><span class="badge ${h?'ok':'warn'}">${h?'Actif':'En attente'}</span></div></div>`
+ }).join(''):'<div class="empty">Aucun élève. Partage le lien aux étudiants.</div>'
 }
-
-function setFilter(f) { filter = f; render(); }
-
-function viewDetail(id) {
- const s = students.find(x => x.id === id);
- if (!s) return;
- const data = s.data || {};
- document.getElementById('modalContent').innerHTML = `
-  <h2>${s.prenom} ${s.nom}</h2>
-  <p>📧 ${s.email}</p>
-  <p>🕐 Inscrit: ${new Date(s.created_at).toLocaleString('fr-FR')}</p>
-  <p>🟢 Dernière activité: ${s.last_active ? new Date(s.last_active).toLocaleString('fr-FR') : 'Jamais'}</p>
-  <hr style="border-color:rgba(255,255,255,.06);margin:16px 0">
-  <h3>Notes</h3>
-  <pre>${data.notes || '—'}</pre>
-  <h3>Objectifs</h3>
-  <pre>${data.goals || '—'}</pre>
-  <h3>Insights</h3>
-  <pre>${data.insights || '—'}</pre>
- `;
- document.getElementById('modal').classList.add('show');
-}
-
-function closeModal() { document.getElementById('modal').classList.remove('show'); }
-
-load();
+function setF(f){filter=f;render()}
+function view(id){const s=students.find(x=>x.id===id);if(!s)return;const d=s.data||{};
+ document.getElementById('modalContent').innerHTML=`<h2>${s.prenom} ${s.nom}</h2><p>📧 ${s.email}</p><p>🕐 ${new Date(s.created_at).toLocaleString('fr-FR')}</p><p>🟢 ${s.last_active?new Date(s.last_active).toLocaleString('fr-FR'):'Jamais'}</p><h3>📝 Notes</h3><pre>${d.notes||'—'}</pre><h3>🎯 Objectifs</h3><pre>${d.goals||'—'}</pre><h3>💡 Insights</h3><pre>${d.insights||'—'}</pre>`;
+ document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+load();setInterval(load,15000);
 </script>
 </body>
 </html>
