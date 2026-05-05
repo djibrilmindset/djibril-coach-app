@@ -2,220 +2,157 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Coach · Djibril Tracking</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · Coach Djibril</title>
 <style>
-:root{--bg:#06030f;--card:#110926;--text:#f0e9ff;--muted:#8a7cb8;--pink:#ff2e93;--cyan:#00e5ff;--green:#22ee88;--violet:#a855f7;--red:#ff3355;--amber:#ffb020;--surface:#1a0f3a;--line:rgba(196,184,232,.1);--r:14px}
+:root{--bg:#0a0a0a;--card:#141414;--text:#f0f0f0;--muted:#888;--pink:#ff2e93;--cyan:#00d4ff;--green:#00ff88;--orange:#ff7a3d}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;background-image:radial-gradient(ellipse 70% 50% at 90% 10%,rgba(168,85,247,.15),transparent 60%),radial-gradient(ellipse 60% 40% at 10% 80%,rgba(0,229,255,.08),transparent 60%)}
-/* Login */
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.login-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:40px 32px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.4);max-width:400px;width:100%}
-.login-card h1{font-size:1.4rem;font-weight:800;margin-bottom:8px}
-.login-card h1 em{font-style:italic;color:var(--cyan)}
-.login-card .sub{color:var(--muted);font-size:.85rem;margin-bottom:24px}
-.field{margin-bottom:16px;text-align:left}
-.field label{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.field input{width:100%;padding:13px 16px;background:var(--surface);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:15px;outline:none;transition:border .2s;font-family:inherit}
-.field input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,229,255,.15)}
-.btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--cyan),var(--violet));border:none;border-radius:10px;color:#fff;font-weight:700;font-size:15px;cursor:pointer;font-family:inherit;transition:transform .15s}
-.btn:hover{transform:translateY(-1px)}
-.btn:disabled{opacity:.4;cursor:not-allowed}
-.msg{padding:10px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none;text-align:center}
-.msg.error{background:rgba(255,51,85,.12);color:var(--red);display:block}
-
-/* Dashboard */
-.app{min-height:100vh}
-.app-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
-.app-brand{font-weight:700;font-size:16px;color:var(--cyan)}
-.btn-out{background:var(--surface);border:1px solid var(--line);color:var(--muted);padding:6px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-family:inherit}
-.app-main{max-width:1000px;margin:0 auto;padding:24px}
-.kpi-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;text-align:center}
-.kpi .num{font-size:2rem;font-weight:900}
-.kpi .label{font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase}
-table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-th{text-align:left;padding:12px 14px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--line);background:var(--surface)}
-td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.03)}
-tr:hover td{background:rgba(168,85,247,.05)}
-.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px}
+body{font-family:-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+header{background:var(--card);border-bottom:1px solid rgba(255,255,255,.08);padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
+header .brand{font-weight:700;color:var(--cyan);text-decoration:none}
+header .label{font-size:.7rem;color:var(--pink);text-transform:uppercase;letter-spacing:1px}
+main{max-width:1000px;margin:0 auto;padding:24px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.stat{background:var(--card);border-radius:12px;padding:20px;text-align:center;border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:border .2s}
+.stat:hover{border-color:var(--cyan)}
+.stat .num{font-size:2rem;font-weight:800}
+.stat .label{font-size:.75rem;color:var(--muted);margin-top:4px}
+.stat.active{border-color:var(--cyan)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:12px;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,.06)}
+td{padding:14px 12px;border-bottom:1px solid rgba(255,255,255,.04);font-size:.9rem}
+tr:hover{background:rgba(255,255,255,.02)}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px}
 .dot.green{background:var(--green)}
-.dot.red{background:var(--red)}
-.dot.amber{background:var(--amber)}
-.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600}
-.badge.ok{background:rgba(34,238,136,.15);color:var(--green)}
-.badge.warn{background:rgba(255,176,32,.15);color:var(--amber)}
-.btn-sm{background:var(--violet);color:#fff;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;font-family:inherit}
-.btn-sm:hover{opacity:.8}
-/* Modal */
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:100;align-items:center;justify-content:center;padding:24px}
+.dot.orange{background:var(--orange)}
+.dot.red{background:#ff4444}
+.badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:.7rem;font-weight:600}
+.badge.ok{background:rgba(0,255,136,.15);color:var(--green)}
+.badge.warn{background:rgba(255,170,0,.15);color:var(--orange)}
+.btn{background:var(--cyan);color:var(--bg);border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:.8rem}
+.btn:hover{opacity:.8}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:100;align-items:center;justify-content:center}
 .modal.show{display:flex}
-.modal-inner{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:32px;max-width:600px;width:100%;max-height:85vh;overflow-y:auto}
-.modal-inner h2{margin-bottom:12px}
-.modal-inner .close{float:right;background:none;border:none;color:var(--text);font-size:1.5rem;cursor:pointer;font-family:inherit}
-.modal-inner .detail{margin-bottom:8px;font-size:14px;color:var(--muted)}
-.modal-inner table{font-size:12px;margin-top:16px}
-.modal-inner th{font-size:10px}
-.modal-inner td{font-size:12px;padding:8px 10px}
-.empty{text-align:center;padding:48px;color:var(--muted)}
+.modal-inner{background:var(--card);border-radius:16px;padding:32px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto}
+.modal-inner h2{margin-bottom:16px}
+.modal-inner p{margin-bottom:8px;font-size:.9rem}
+.modal-inner .close{float:right;background:none;border:none;color:var(--text);font-size:1.5rem;cursor:pointer}
+pre{background:#1a1a1a;padding:12px;border-radius:8px;font-size:.8rem;overflow-x:auto;margin-top:8px}
 </style>
 </head>
 <body>
+<header>
+ <a href="./" class="brand">PARDIN Djibril TRACKING · CONSOLE</a>
+ <span class="label">● COACH · ADMIN</span>
+</header>
 
-<!-- LOGIN -->
-<div id="loginView" class="login-wrap">
- <div class="login-card">
-  <h1>Coach <em>Djibril</em></h1>
-  <p class="sub">Console administrateur · Suivi des élèves</p>
-  <div id="loginMsg"></div>
-  <div class="field"><label>Mot de passe coach</label><input type="password" id="coachPass" placeholder="••••••" autofocus></div>
-  <button class="btn" id="btnCoachLogin" onclick="coachLogin()">Accéder →</button>
+<main>
+ <h1 style="margin-bottom:16px">Mes élèves</h1>
+
+ <div class="stats" id="stats"></div>
+ 
+ <table>
+  <thead>
+   <tr><th>Élève</th><th>Email</th><th>Dernière activité</th><th>Statut</th><th></th></tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+ </table>
+</main>
+
+<div class="modal" id="modal">
+ <div class="modal-inner">
+  <button class="close" onclick="closeModal()">&times;</button>
+  <div id="modalContent"></div>
  </div>
 </div>
 
-<!-- DASHBOARD -->
-<div id="dashView" style="display:none" class="app">
- <header class="app-header">
-  <span class="app-brand">Djibril Tracking · Coach</span>
-  <span style="font-size:12px;color:var(--muted)" id="refreshStatus"></span>
-  <button class="btn-out" onclick="coachLogout()">Déconnexion</button>
- </header>
- <main class="app-main">
-  <h1 style="margin-bottom:20px">Mes <em style="color:var(--cyan);font-style:italic">élèves</em></h1>
-  <div class="kpi-bar" id="kpiBar"></div>
-  <table>
-   <thead><tr><th>Élève</th><th>Email</th><th>Aujourd'hui</th><th>Points</th><th>CA jour</th><th>Dernière activité</th><th></th></tr></thead>
-   <tbody id="tbody"></tbody>
-  </table>
-  <div class="empty" id="emptyState" style="display:none">Aucun élève inscrit. Partage le lien de l'app aux étudiants.</div>
- </main>
-</div>
-
-<!-- MODAL -->
-<div class="modal" id="modal"><div class="modal-inner"><button class="close" onclick="closeModal()">&times;</button><div id="modalContent"></div></div></div>
-
 <script>
 const API = 'https://nbnbsljqtolzzuqnkyae.supabase.co/functions/v1/tracking-app/api';
-const COACH_PASS = 'djibril2024';
+
 let students = [];
-let refreshTimer = null;
+let filter = 'all';
 
-// Init
-if (sessionStorage.getItem('coach_auth') === '1') showDashboard();
+async function load() {
+ const res = await fetch(API + '/coach/students');
+ students = await res.json();
+ render();
+}
+setInterval(load, 10000); // Refresh every 10s
 
-function loginMsg(t) {
-  const el = document.getElementById('loginMsg');
-  el.textContent = t; el.className = 'msg error';
+function render() {
+ const active = students.filter(s => s.has_filled).length;
+ const inactive = students.filter(s => !s.has_filled).length;
+ const filtered = filter === 'all' ? students : 
+  filter === 'active' ? students.filter(s => s.has_filled) :
+  filter === 'inactive' ? students.filter(s => !s.has_filled) :
+  students;
+
+ // Stats
+ document.getElementById('stats').innerHTML = `
+  <div class="stat${filter==='all'?' active':''}" onclick="setFilter('all')"><div class="num">${students.length}</div><div class="label">Total</div></div>
+  <div class="stat${filter==='active'?' active':''}" onclick="setFilter('active')"><div class="num" style="color:var(--green)">${active}</div><div class="label">Actifs</div></div>
+  <div class="stat${filter==='inactive'?' active':''}" onclick="setFilter('inactive')"><div class="num" style="color:var(--orange)">${inactive}</div><div class="label">Inactifs</div></div>
+ `;
+
+ // Table
+ document.getElementById('tbody').innerHTML = filtered.map(s => {
+  const hasData = s.has_filled;
+  const joined = s.joined_at ? new Date(s.joined_at).toLocaleDateString('fr-FR', {day:'numeric',month:'short'}) : '—';
+  return `<tr>
+   <td><span class="dot ${hasData?'green':'orange'}"></span>${s.first_name} ${s.full_name||''}</td>
+   <td style="color:var(--muted)">${s.email}</td>
+   <td style="color:var(--muted);font-size:.8rem">${joined}</td>
+   <td><span class="badge ${hasData?'ok':'warn'}">${hasData?'Actif':'En attente'}</span></td>
+   <td><button class="btn" onclick="viewDetail('${s.id}')">Détail</button></td>
+  </tr>`;
+ }).join('');
+
+ if (filtered.length === 0) {
+  document.getElementById('tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:40px">Aucun élève. Partage le lien de l\'app aux étudiants.</td></tr>';
+ }
 }
 
-function coachLogin() {
-  const pass = document.getElementById('coachPass').value;
-  if (pass !== COACH_PASS) return loginMsg('Mot de passe incorrect');
-  sessionStorage.setItem('coach_auth', '1');
-  showDashboard();
-}
+function setFilter(f) { filter = f; render(); }
 
-function coachLogout() {
-  sessionStorage.removeItem('coach_auth');
-  clearInterval(refreshTimer);
-  document.getElementById('dashView').style.display = 'none';
-  document.getElementById('loginView').style.display = '';
-}
+async function viewDetail(id) {
+ const s = students.find(x => x.id === id);
+ if (!s) return;
+ document.getElementById('modalContent').innerHTML = '<p style="color:var(--muted)">Chargement...</p>';
+ document.getElementById('modal').classList.add('show');
 
-async function showDashboard() {
-  document.getElementById('loginView').style.display = 'none';
-  document.getElementById('dashView').style.display = 'block';
-  await loadStudents();
-  refreshTimer = setInterval(loadStudents, 10000);
-}
+ try {
+  const res = await fetch(API + '/coach/students/' + id);
+  const data = await res.json();
+  const student = data.student;
+  const entries = data.entries || [];
+  const totalPts = entries.reduce((sum, e) => sum + (e.calls||0)*2 + (e.dm||0) + (e.videos||0)*3 + (e.live?5:0), 0);
+  const totalCA = entries.reduce((sum, e) => sum + (e.ca_eur||0), 0);
 
-async function loadStudents() {
-  try {
-    const res = await fetch(API + '/coach/students');
-    students = await res.json();
-    const stats = await fetch(API + '/coach/stats').then(r => r.json());
-    renderDashboard(stats);
-  } catch(e) { console.log('Load error:', e); }
-}
-
-function renderDashboard(stats) {
-  // KPI bar
-  document.getElementById('kpiBar').innerHTML = `
-   <div class="kpi"><div class="num">${stats.total||0}</div><div class="label">Total</div></div>
-   <div class="kpi"><div class="num" style="color:var(--green)">${stats.filled||0}</div><div class="label">Remplis</div></div>
-   <div class="kpi"><div class="num" style="color:var(--amber)">${stats.missing||0}</div><div class="label">Manquants</div></div>
-   <div class="kpi"><div class="num" style="color:var(--cyan)">${(stats.ca_total||0).toFixed(0)}€</div><div class="label">CA jour</div></div>
-  `;
-
-  if (!students.length) {
-    document.getElementById('tbody').innerHTML = '';
-    document.getElementById('emptyState').style.display = 'block';
-    document.getElementById('refreshStatus').textContent = '✓ Live';
-    return;
-  }
-  document.getElementById('emptyState').style.display = 'none';
-
-  document.getElementById('tbody').innerHTML = students.map(s => {
-    const filled = s.has_filled;
-    const entry = s.today_entry || {};
-    const pts = (entry.calls||0)*2 + (entry.dm||0) + (entry.videos||0)*3 + (entry.live ? 5 : 0);
-    const lastActive = s.joined_at ? new Date(s.joined_at).toLocaleDateString('fr-FR', {day:'numeric',month:'short'}) : '—';
-    return `<tr>
-     <td><span class="dot ${filled?'green':'red'}"></span><strong>${s.first_name} ${s.full_name||''}</strong></td>
-     <td style="color:var(--muted)">${s.email}</td>
-     <td><span class="badge ${filled?'ok':'warn'}">${filled?'Rempli':'Manquant'}</span></td>
-     <td style="font-weight:700">${pts}</td>
-     <td style="color:var(--cyan)">${(entry.ca_eur||0).toFixed(0)}€</td>
-     <td style="color:var(--muted);font-size:11px">${lastActive}</td>
-     <td><button class="btn-sm" onclick="showDetail('${s.id}')">Détail</button></td>
-    </tr>`;
+  let entryRows = entries.slice(0,14).map(e => {
+   const pts = (e.calls||0)*2 + (e.dm||0) + (e.videos||0)*3 + (e.live?5:0);
+   return `<tr><td>${e.entry_date}</td><td>${e.calls||0}</td><td>${e.dm||0}</td><td>${e.videos||0}</td><td>${e.live?'Oui':'—'}</td><td>${(e.ca_eur||0).toFixed(0)}€</td><td><strong>${pts}</strong></td></tr>`;
   }).join('');
 
-  document.getElementById('refreshStatus').textContent = '✓ Live · ' + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-}
-
-async function showDetail(id) {
-  const s = students.find(x => x.id === id);
-  if (!s) return;
-  document.getElementById('modalContent').innerHTML = '<p style="color:var(--muted)">Chargement...</p>';
-  document.getElementById('modal').classList.add('show');
-
-  try {
-    const res = await fetch(API + '/coach/students/' + id);
-    const data = await res.json();
-    const student = data.student;
-    const entries = data.entries || [];
-    const totalPts = entries.reduce((sum, e) => sum + (e.calls||0)*2 + (e.dm||0) + (e.videos||0)*3 + (e.live?5:0), 0);
-    const totalCA = entries.reduce((sum, e) => sum + (e.ca_eur||0), 0);
-
-    let entryRows = entries.slice(0,14).map(e => {
-      const pts = (e.calls||0)*2 + (e.dm||0) + (e.videos||0)*3 + (e.live?5:0);
-      return `<tr><td>${e.entry_date}</td><td>${e.calls||0}</td><td>${e.dm||0}</td><td>${e.videos||0}</td><td>${e.live?'Oui':'—'}</td><td>${(e.ca_eur||0).toFixed(0)}€</td><td><strong>${pts}</strong></td></tr>`;
-    }).join('');
-
-    document.getElementById('modalContent').innerHTML = `
-     <h2>${student.first_name} <em style="color:var(--cyan);font-style:italic">${student.full_name||''}</em></h2>
-     <p class="detail">📧 ${student.email}</p>
-     <p class="detail">📅 Inscrit le ${(student.joined_at||'').slice(0,10)}</p>
-     <div class="kpi-bar" style="margin:16px 0">
-      <div class="kpi"><div class="num">${entries.length}</div><div class="label">Fiches</div></div>
-      <div class="kpi"><div class="num">${totalPts}</div><div class="label">Points</div></div>
-      <div class="kpi"><div class="num">${totalCA.toFixed(0)}€</div><div class="label">CA cumulé</div></div>
-     </div>
-     <h3 style="margin-bottom:10px">Fiches récentes</h3>
-     ${entries.length ? `<table><thead><tr><th>Date</th><th>Calls</th><th>DM</th><th>Vidéos</th><th>Live</th><th>CA</th><th>Pts</th></tr></thead><tbody>${entryRows}</tbody></table>` : '<p style="color:var(--muted)">Aucune fiche</p>'}
-    `;
-  } catch(e) {
-    document.getElementById('modalContent').innerHTML = '<p style="color:var(--red)">Erreur: ' + e.message + '</p>';
-  }
+  document.getElementById('modalContent').innerHTML = `
+   <h2>${student.first_name} ${student.full_name||''}</h2>
+   <p>📧 ${student.email}</p>
+   <p>📅 Inscrit le ${(student.joined_at||'').slice(0,10)}</p>
+   <div class="stats" style="margin:16px 0">
+    <div class="stat"><div class="num">${entries.length}</div><div class="label">Fiches</div></div>
+    <div class="stat"><div class="num">${totalPts}</div><div class="label">Points</div></div>
+    <div class="stat"><div class="num">${totalCA.toFixed(0)}€</div><div class="label">CA cumulé</div></div>
+   </div>
+   <h3>Fiches récentes</h3>
+   ${entries.length ? `<table><thead><tr><th>Date</th><th>Calls</th><th>DM</th><th>Vidéos</th><th>Live</th><th>CA</th><th>Pts</th></tr></thead><tbody>${entryRows}</tbody></table>` : '<p style="color:var(--muted)">Aucune fiche</p>'}
+  `;
+ } catch(e) {
+  document.getElementById('modalContent').innerHTML = '<p style="color:#ff4444">Erreur: ' + e.message + '</p>';
+ }
 }
 
 function closeModal() { document.getElementById('modal').classList.remove('show'); }
 
-// Enter key for login
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.getElementById('loginView').style.display !== 'none') coachLogin();
-});
+load();
 </script>
 </body>
 </html>
