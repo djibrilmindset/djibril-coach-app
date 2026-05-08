@@ -103,6 +103,40 @@ body{
 .modal__body table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:20px}
 .modal__body table th{text-align:left;padding:6px 8px;font-size:9px;font-weight:600;color:var(--ink-mute);text-transform:uppercase;border-bottom:1.5px solid rgba(26,22,20,.2);font-family:var(--mono);letter-spacing:.08em}
 .modal__body table td{padding:6px 8px;border-bottom:1px solid rgba(26,22,20,.08);font-family:var(--serif);font-style:italic}
+.modal__body table tr.is-today td{background:rgba(232,93,44,.08);font-weight:600}
+.modal__body table tr.week-sep td{border-top:1.5px dashed rgba(26,22,20,.18);padding-top:10px}
+.modal__body table td.dow{font-family:var(--mono);font-style:normal;font-size:9px;color:var(--ink-mute);letter-spacing:.06em;text-transform:uppercase}
+
+/* AGGREGATION TILES INSIDE MODAL */
+.agg-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0 8px}
+.agg-tile{background:rgba(255,252,245,.65);border:1.5px solid rgba(26,22,20,.18);padding:10px 8px;text-align:center}
+.agg-tile b{font-family:var(--display);font-weight:900;font-size:1.25rem;display:block;line-height:1.1;color:var(--ember)}
+.agg-tile span{font-family:var(--mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);margin-top:4px;display:block}
+.agg-tile.jade b{color:var(--jade)}
+.agg-tile.plum b{color:var(--plum)}
+.agg-tile.indigo b{color:var(--indigo)}
+
+/* SPARKLINE */
+.spark-wrap{margin:6px 0 14px;padding:10px 12px;background:rgba(255,252,245,.55);border:1.5px solid rgba(26,22,20,.15)}
+.spark-wrap .spark-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.spark-wrap .spark-head h5{font-family:var(--display);font-weight:800;font-size:.85rem;color:var(--ink)}
+.spark-wrap .spark-head em{font-family:var(--mono);font-style:normal;font-size:9px;letter-spacing:.1em;color:var(--ink-mute);text-transform:uppercase}
+.spark-svg{width:100%;height:46px;display:block}
+
+/* ENTRIES CONTROLS */
+.entries-controls{display:flex;gap:8px;margin:6px 0 10px;flex-wrap:wrap;align-items:center}
+.entries-controls h4{margin:0!important;flex:1}
+.entries-controls .filter-btn{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;background:rgba(255,252,245,.6);border:1.5px solid rgba(26,22,20,.2);padding:6px 10px;cursor:pointer;color:var(--ink);transition:all .15s}
+.entries-controls .filter-btn:hover{border-color:var(--ember);color:var(--ember)}
+.entries-controls .filter-btn.is-active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+/* WEEK SUMMARY */
+.week-summary{margin:18px 0 0;padding:12px 14px;background:rgba(243,236,223,.55);border:1.5px dashed rgba(26,22,20,.2)}
+.week-summary h5{font-family:var(--display);font-weight:800;font-size:.85rem;margin-bottom:8px;color:var(--ink)}
+.week-summary .wk-row{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;padding:5px 0;font-family:var(--serif);font-style:italic;font-size:.92rem;border-bottom:1px dotted rgba(26,22,20,.1)}
+.week-summary .wk-row:last-child{border-bottom:none}
+.week-summary .wk-row b{font-family:var(--display);font-style:normal;font-weight:800;color:var(--ember)}
+.week-summary .wk-row .wk-meta{font-family:var(--mono);font-style:normal;font-size:9px;letter-spacing:.06em;color:var(--ink-mute)}
 
 .empty-state{text-align:center;padding:40px 20px;font-family:var(--serif);font-style:italic;color:var(--ink-mute);font-size:1.05rem}
 .error-state{text-align:center;padding:40px 20px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--crit)}
@@ -112,6 +146,11 @@ body{
   .student-row{grid-template-columns:1fr auto;gap:4px 8px}
   .student-row__time{grid-column:2;text-align:right}
   .student-row__status{grid-column:1/-1}
+  .agg-strip{grid-template-columns:repeat(2,1fr)}
+  .modal__body table{font-size:10.5px}
+  .modal__body table th,.modal__body table td{padding:5px 6px}
+  .week-summary .wk-row{grid-template-columns:1fr auto auto;font-size:.85rem}
+  .week-summary .wk-row .wk-meta:nth-of-type(2){display:none}
 }
 @media (prefers-reduced-motion:reduce){
   .cosmos__cap,.cosmos__stars{animation:none!important}
@@ -221,6 +260,69 @@ body{
     }
   }
 
+  // Helpers
+  function pts(e){ return (e.calls||0)*2 + (e.dm||0) + (e.videos||0)*3 + (e.live?5:0) }
+  function fmtDate(iso){
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('fr-FR', { day:'2-digit', month:'short' });
+  }
+  function dow(iso){
+    const d = new Date(iso + 'T00:00:00');
+    return ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][d.getDay()];
+  }
+  function isoWeek(iso){
+    const d = new Date(iso + 'T00:00:00');
+    d.setDate(d.getDate() + 4 - (d.getDay()||7));
+    const yearStart = new Date(d.getFullYear(),0,1);
+    const week = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    return d.getFullYear() + '-W' + String(week).padStart(2,'0');
+  }
+  function streak(entries){
+    // consecutive days backward from today/yesterday
+    if(!entries.length) return 0;
+    const dates = new Set(entries.map(e => e.entry_date));
+    let n = 0;
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    // allow streak to start at today OR yesterday
+    let cur = new Date(today);
+    if(!dates.has(cur.toISOString().slice(0,10))){
+      cur.setDate(cur.getDate() - 1);
+      if(!dates.has(cur.toISOString().slice(0,10))) return 0;
+    }
+    while(dates.has(cur.toISOString().slice(0,10))){ n++; cur.setDate(cur.getDate()-1) }
+    return n;
+  }
+  function sumCA(entries, days){
+    const cutoff = new Date(); cutoff.setHours(0,0,0,0); cutoff.setDate(cutoff.getDate()-days+1);
+    return entries.reduce((s,e) => {
+      const d = new Date(e.entry_date + 'T00:00:00');
+      return s + (d >= cutoff ? (e.ca_eur||0) : 0);
+    }, 0);
+  }
+  function sparkSVG(entries){
+    // last 30 days CA bars
+    const today = new Date(); today.setHours(0,0,0,0);
+    const days = [];
+    for(let i=29;i>=0;i--){
+      const d = new Date(today); d.setDate(d.getDate()-i);
+      days.push(d.toISOString().slice(0,10));
+    }
+    const map = {};
+    entries.forEach(e => { map[e.entry_date] = e.ca_eur||0 });
+    const values = days.map(d => map[d] || 0);
+    const max = Math.max(1, ...values);
+    const w = 100, h = 46, bw = w/30;
+    const bars = values.map((v,i) => {
+      const bh = (v / max) * (h-4);
+      const x = i * bw;
+      const y = h - bh;
+      const filled = v > 0;
+      return `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${(bw-0.6).toFixed(2)}" height="${bh.toFixed(2)}" fill="${filled?'var(--ember)':'rgba(26,22,20,.12)'}" />`;
+    }).join('');
+    return `<svg class="spark-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">${bars}</svg>`;
+  }
+
   async function showDetail(id){
     overlay.hidden = false;
     modal.innerHTML = '<div style="padding:40px;text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--ink-mute)">Chargement...</div>';
@@ -229,25 +331,74 @@ body{
       const res = await fetch(API + '/coach/students/' + id);
       const data = await res.json();
       const s = data.student;
-      const entries = data.entries || [];
+      const entries = (data.entries || []).slice().sort((a,b) => b.entry_date.localeCompare(a.entry_date));
 
       const name = s.full_name || s.first_name || s.email;
-      const hasToday = entries.some(e => e.entry_date === new Date().toISOString().slice(0,10));
+      const todayISO = new Date().toISOString().slice(0,10);
+      const hasToday = entries.some(e => e.entry_date === todayISO);
       const totalCA = entries.reduce((sum,e) => sum + (e.ca_eur||0), 0);
+      const ca7 = sumCA(entries, 7);
+      const ca30 = sumCA(entries, 30);
+      const strk = streak(entries);
+
+      // Weekly aggregation
+      const weeks = {};
+      entries.forEach(e => {
+        const wk = isoWeek(e.entry_date);
+        if(!weeks[wk]) weeks[wk] = { ca:0, n:0, calls:0, dm:0, videos:0, live:0, start:e.entry_date, end:e.entry_date };
+        const w = weeks[wk];
+        w.ca += (e.ca_eur||0); w.n++;
+        w.calls += (e.calls||0); w.dm += (e.dm||0); w.videos += (e.videos||0); w.live += (e.live?1:0);
+        if(e.entry_date < w.start) w.start = e.entry_date;
+        if(e.entry_date > w.end) w.end = e.entry_date;
+      });
+      const weekKeys = Object.keys(weeks).sort().reverse();
 
       let entriesHTML = '';
       if(entries.length){
-        entriesHTML = `<h4>Dernières fiches</h4><table>
-          <thead><tr><th>Date</th><th>Calls</th><th>DM</th><th>Vidéos</th><th>Live</th><th>CA</th><th>Pts</th></tr></thead>
-          <tbody>${entries.slice(0,14).map(e => {
-            const pts = (e.calls||0)*2 + (e.dm||0) + (e.videos||0)*3 + (e.live?5:0);
-            return `<tr>
-              <td>${e.entry_date}</td><td>${e.calls||0}</td><td>${e.dm||0}</td><td>${e.videos||0}</td>
-              <td>${e.live?'Oui':'—'}</td><td>${(e.ca_eur||0).toFixed(2)}€</td><td><strong>${pts}</strong></td>
-            </tr>`;
-          }).join('')}</tbody></table>`;
+        // Build table rows with week separators (chronological reverse — most recent first)
+        let lastWeek = null;
+        const rows = entries.map(e => {
+          const wk = isoWeek(e.entry_date);
+          const sep = (lastWeek && lastWeek !== wk) ? ' week-sep' : '';
+          lastWeek = wk;
+          const todayCls = e.entry_date === todayISO ? ' is-today' : '';
+          return `<tr class="entry-row${sep}${todayCls}" data-date="${e.entry_date}">
+            <td class="dow">${dow(e.entry_date)}</td>
+            <td>${fmtDate(e.entry_date)}</td>
+            <td>${e.calls||0}</td><td>${e.dm||0}</td><td>${e.videos||0}</td>
+            <td>${e.live?'Oui':'—'}</td><td>${(e.ca_eur||0).toFixed(2)}€</td>
+            <td><strong>${pts(e)}</strong></td>
+          </tr>`;
+        }).join('');
+
+        entriesHTML = `
+          <div class="entries-controls">
+            <h4>Historique des fiches <span style="font-family:var(--mono);font-style:normal;font-weight:400;font-size:10px;color:var(--ink-mute);letter-spacing:.08em">· ${entries.length} fiches</span></h4>
+            <button class="filter-btn is-active" data-range="all">Toutes</button>
+            <button class="filter-btn" data-range="30">30 j</button>
+            <button class="filter-btn" data-range="7">7 j</button>
+          </div>
+          <table id="entriesTable">
+            <thead><tr><th></th><th>Date</th><th>Calls</th><th>DM</th><th>Vid</th><th>Live</th><th>CA</th><th>Pts</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+          ${weekKeys.length > 1 ? `
+          <div class="week-summary">
+            <h5>Récapitulatif par semaine</h5>
+            ${weekKeys.map(wk => {
+              const w = weeks[wk];
+              return `<div class="wk-row">
+                <span>${fmtDate(w.start)} → ${fmtDate(w.end)}</span>
+                <span class="wk-meta">${w.n} fiche${w.n>1?'s':''}</span>
+                <span class="wk-meta">${w.calls}c · ${w.dm}dm · ${w.videos}v</span>
+                <b>${w.ca.toFixed(0)}€</b>
+              </div>`;
+            }).join('')}
+          </div>` : ''}
+        `;
       } else {
-        entriesHTML = '<p style="font-family:var(--serif);font-style:italic;color:var(--ink-mute)">Aucune fiche enregistrée.</p>';
+        entriesHTML = '<p style="font-family:var(--serif);font-style:italic;color:var(--ink-mute);padding:20px 0">Aucune fiche enregistrée.</p>';
       }
 
       modal.innerHTML = `
@@ -260,10 +411,39 @@ body{
           <div class="info-row"><span>Inscrit(e)</span><span>${new Date(s.joined_at).toLocaleDateString('fr-FR')}</span></div>
           <div class="info-row"><span>Aujourd'hui</span><span>${hasToday?'<span class="chip chip--ok">Fait ✓</span>':'<span class="chip chip--miss">En attente</span>'}</span></div>
           <div class="info-row"><span>CA total</span><span>${totalCA.toFixed(2)}€</span></div>
+
+          <div class="agg-strip">
+            <div class="agg-tile"><b>${ca7.toFixed(0)}€</b><span>CA 7 jours</span></div>
+            <div class="agg-tile jade"><b>${ca30.toFixed(0)}€</b><span>CA 30 jours</span></div>
+            <div class="agg-tile plum"><b>${strk}</b><span>jours d'affilée</span></div>
+            <div class="agg-tile indigo"><b>${entries.length}</b><span>total fiches</span></div>
+          </div>
+
+          <div class="spark-wrap">
+            <div class="spark-head"><h5>CA · 30 derniers jours</h5><em>${entries.length?fmtDate(entries[entries.length-1].entry_date):''} → aujourd'hui</em></div>
+            ${sparkSVG(entries)}
+          </div>
+
           ${entriesHTML}
         </div>
       `;
       document.getElementById('closeModal').addEventListener('click', () => overlay.hidden = true);
+
+      // Filter buttons
+      modal.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          modal.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+          const range = btn.dataset.range;
+          const cutoff = new Date(); cutoff.setHours(0,0,0,0);
+          if(range !== 'all') cutoff.setDate(cutoff.getDate() - parseInt(range,10) + 1);
+          modal.querySelectorAll('#entriesTable tbody tr.entry-row').forEach(tr => {
+            if(range === 'all'){ tr.style.display = ''; return }
+            const d = new Date(tr.dataset.date + 'T00:00:00');
+            tr.style.display = d >= cutoff ? '' : 'none';
+          });
+        });
+      });
     } catch(e){
       modal.innerHTML = '<div style="padding:40px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--crit)">Erreur de chargement.</div>';
     }
