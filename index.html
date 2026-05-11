@@ -337,6 +337,12 @@ body{
     const wbPos = wbPositiveCount(e.wellbeing_answers);
     return Math.round(hrs*2 + ful*1 + (e.calls||0)*2 + wbPos*1 + (e.live?5:0));
   }
+  function saveCountIcon(sc){
+    sc = parseInt(sc||0);
+    if(sc === 0) return '';
+    if(sc === 1) return '<span title="Enregistrée 1×" style="font-family:var(--mono);font-size:9px;letter-spacing:.04em;color:var(--jade);font-weight:600;background:rgba(29,138,111,.12);padding:2px 6px;border-radius:4px;margin-left:4px">×1</span>';
+    return '<span title="Verrouillée (modifiée 2×)" style="font-family:var(--mono);font-size:9px;letter-spacing:.04em;color:var(--paper);font-weight:600;background:var(--ink);padding:2px 6px;border-radius:4px;margin-left:4px">🔒</span>';
+  }
   function fmtDate(iso){
     const d = new Date(iso + 'T00:00:00');
     return d.toLocaleDateString('fr-FR', { day:'2-digit', month:'short' });
@@ -453,7 +459,7 @@ body{
             : '';
           return `<tr class="entry-row${sep}${todayCls}" data-date="${e.entry_date}">
             <td class="dow">${dow(e.entry_date)}</td>
-            <td>${fmtDate(e.entry_date)} ${noteIcon}</td>
+            <td>${fmtDate(e.entry_date)} ${noteIcon}${saveCountIcon(e.save_count)}</td>
             <td>${hrs}h</td>
             <td>${fulEmoji(ful)} ${ful}</td>
             <td>${e.calls||0}</td>
