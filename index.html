@@ -4,6 +4,15 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
 <title>Coach · Tracking Djibril</title>
+<meta property="og:title" content="Djibril · Console Coach">
+<meta property="og:description" content="Dashboard temps réel des élèves Reset Ultra.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://djibrilmindset.github.io/djibril-coach-app/">
+<meta property="og:image" content="https://djibrilmindset.github.io/djibril-coach-app/og-preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://djibrilmindset.github.io/djibril-coach-app/og-preview.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Playfair+Display:wght@400;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -106,6 +115,23 @@ body{
 .modal__body table tr.is-today td{background:rgba(232,93,44,.08);font-weight:600}
 .modal__body table tr.week-sep td{border-top:1.5px dashed rgba(26,22,20,.18);padding-top:10px}
 .modal__body table td.dow{font-family:var(--mono);font-style:normal;font-size:9px;color:var(--ink-mute);letter-spacing:.06em;text-transform:uppercase}
+
+/* NOTE PIN + NOTE PANEL */
+.note-pin{display:inline-block;margin-left:4px;cursor:help;font-size:11px;filter:saturate(.6)}
+.notes-panel{margin:14px 0;padding:12px 14px;background:rgba(232,93,44,.06);border-left:3px solid var(--ember);border-radius:0 4px 4px 0}
+.notes-panel h5{font-family:var(--display);font-weight:800;font-size:.85rem;color:var(--ink);margin-bottom:8px}
+.notes-panel .note-item{padding:6px 0;border-bottom:1px dotted rgba(26,22,20,.1);font-family:var(--serif);font-style:italic;font-size:.92rem;color:var(--ink-soft)}
+.notes-panel .note-item:last-child{border-bottom:none}
+.notes-panel .note-item .note-date{font-family:var(--mono);font-style:normal;font-size:9px;letter-spacing:.06em;color:var(--ink-mute);text-transform:uppercase;margin-right:8px}
+
+/* WELLBEING BREAKDOWN */
+.wb-panel{margin:14px 0;padding:12px 14px;background:rgba(74,60,140,.06);border-left:3px solid var(--indigo);border-radius:0 4px 4px 0}
+.wb-panel h5{font-family:var(--display);font-weight:800;font-size:.85rem;color:var(--ink);margin-bottom:10px}
+.wb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px}
+.wb-cell{font-family:var(--mono);font-size:10px;padding:6px 8px;background:rgba(255,252,245,.6);border-radius:4px;display:flex;justify-content:space-between;align-items:center;letter-spacing:.04em}
+.wb-cell .wb-pct{font-weight:700;color:var(--ink)}
+.wb-cell.good .wb-pct{color:var(--jade)}
+.wb-cell.bad .wb-pct{color:var(--crit)}
 
 /* AGGREGATION TILES INSIDE MODAL */
 .agg-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0 8px}
@@ -260,8 +286,52 @@ body{
     }
   }
 
+  // Wellbeing pool — same as student app (used for positive scoring)
+  const WB_POOL = [
+    {slug:"solitude",positive:"no"},
+    {slug:"doute",positive:"no"},
+    {slug:"fierte",positive:"yes"},
+    {slug:"sommeil",positive:"yes"},
+    {slug:"energie",positive:"yes"},
+    {slug:"aligne_objectif",positive:"yes"},
+    {slug:"gratitude",positive:"yes"},
+    {slug:"presence",positive:"yes"},
+    {slug:"peurs",positive:"no"},
+    {slug:"autonomie",positive:"yes"},
+    {slug:"motivation",positive:"yes"},
+    {slug:"support_social",positive:"yes"},
+    {slug:"alimentation",positive:"yes"},
+    {slug:"exercice",positive:"yes"},
+    {slug:"focus",positive:"yes"}
+  ];
+  const WB_LABELS = {
+    solitude:"Solitude",doute:"Doute",fierte:"Fierté",sommeil:"Sommeil",energie:"Énergie",
+    aligne_objectif:"Aligné",gratitude:"Gratitude",presence:"Présent",peurs:"Peurs",
+    autonomie:"Autonomie",motivation:"Motivation",support_social:"Soutien",
+    alimentation:"Alim.",exercice:"Exercice",focus:"Focus"
+  };
+  function wbPositiveCount(wb){
+    if(!wb || typeof wb!=='object') return 0;
+    let n=0;
+    Object.keys(wb).forEach(slug=>{
+      const def = WB_POOL.find(q=>q.slug===slug);
+      if(def && wb[slug] === def.positive) n++;
+    });
+    return n;
+  }
+  function wbTotal(wb){ return wb && typeof wb==='object' ? Object.keys(wb).length : 0; }
+  function fulEmoji(f){
+    if(f<=1) return '😞';if(f<=3) return '😕';if(f<=5) return '😐';
+    if(f<=7) return '🙂';if(f<=9) return '😊';return '✨';
+  }
+
   // Helpers
-  function pts(e){ return (e.calls||0)*2 + (e.dm||0) + (e.videos||0)*3 + (e.live?5:0) }
+  function pts(e){
+    const hrs = parseFloat(e.hours_worked||0);
+    const ful = parseInt(e.fulfillment||0);
+    const wbPos = wbPositiveCount(e.wellbeing_answers);
+    return Math.round(hrs*2 + ful*1 + (e.calls||0)*2 + wbPos*1 + (e.live?5:0));
+  }
   function fmtDate(iso){
     const d = new Date(iso + 'T00:00:00');
     return d.toLocaleDateString('fr-FR', { day:'2-digit', month:'short' });
@@ -341,14 +411,20 @@ body{
       const ca30 = sumCA(entries, 30);
       const strk = streak(entries);
 
-      // Weekly aggregation
+      // Weekly aggregation (avec heures + épanouissement + bien-être)
       const weeks = {};
       entries.forEach(e => {
         const wk = isoWeek(e.entry_date);
-        if(!weeks[wk]) weeks[wk] = { ca:0, n:0, calls:0, dm:0, videos:0, live:0, start:e.entry_date, end:e.entry_date };
+        if(!weeks[wk]) weeks[wk] = { ca:0, n:0, calls:0, hours:0, ful:0, fulN:0, wbPos:0, wbTot:0, live:0, start:e.entry_date, end:e.entry_date };
         const w = weeks[wk];
         w.ca += (e.ca_eur||0); w.n++;
-        w.calls += (e.calls||0); w.dm += (e.dm||0); w.videos += (e.videos||0); w.live += (e.live?1:0);
+        w.calls += (e.calls||0);
+        w.hours += parseFloat(e.hours_worked||0);
+        const f = parseInt(e.fulfillment||0);
+        if(f>0){ w.ful += f; w.fulN++; }
+        w.wbPos += wbPositiveCount(e.wellbeing_answers);
+        w.wbTot += wbTotal(e.wellbeing_answers);
+        w.live += (e.live?1:0);
         if(e.entry_date < w.start) w.start = e.entry_date;
         if(e.entry_date > w.end) w.end = e.entry_date;
       });
@@ -363,11 +439,22 @@ body{
           const sep = (lastWeek && lastWeek !== wk) ? ' week-sep' : '';
           lastWeek = wk;
           const todayCls = e.entry_date === todayISO ? ' is-today' : '';
+          const hrs = parseFloat(e.hours_worked||0);
+          const ful = parseInt(e.fulfillment||0);
+          const wbPos = wbPositiveCount(e.wellbeing_answers);
+          const wbTot = wbTotal(e.wellbeing_answers);
+          const noteIcon = (e.free_note && e.free_note.length>0)
+            ? `<span class="note-pin" data-note="${(e.free_note||'').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" title="${(e.free_note||'').replace(/"/g,'&quot;').replace(/</g,'&lt;')}">📝</span>`
+            : '';
           return `<tr class="entry-row${sep}${todayCls}" data-date="${e.entry_date}">
             <td class="dow">${dow(e.entry_date)}</td>
-            <td>${fmtDate(e.entry_date)}</td>
-            <td>${e.calls||0}</td><td>${e.dm||0}</td><td>${e.videos||0}</td>
-            <td>${e.live?'Oui':'—'}</td><td>${(e.ca_eur||0).toFixed(2)}€</td>
+            <td>${fmtDate(e.entry_date)} ${noteIcon}</td>
+            <td>${hrs}h</td>
+            <td>${fulEmoji(ful)} ${ful}</td>
+            <td>${e.calls||0}</td>
+            <td>${wbTot?wbPos+'/'+wbTot:'—'}</td>
+            <td>${e.live?'Oui':'—'}</td>
+            <td>${(e.ca_eur||0).toFixed(0)}€</td>
             <td><strong>${pts(e)}</strong></td>
           </tr>`;
         }).join('');
@@ -380,7 +467,7 @@ body{
             <button class="filter-btn" data-range="7">7 j</button>
           </div>
           <table id="entriesTable">
-            <thead><tr><th></th><th>Date</th><th>Calls</th><th>DM</th><th>Vid</th><th>Live</th><th>CA</th><th>Pts</th></tr></thead>
+            <thead><tr><th></th><th>Date</th><th>H.</th><th>Épan.</th><th>Calls</th><th>BE</th><th>Live</th><th>CA</th><th>Pts</th></tr></thead>
             <tbody>${rows}</tbody>
           </table>
           ${weekKeys.length > 1 ? `
@@ -388,10 +475,11 @@ body{
             <h5>Récapitulatif par semaine</h5>
             ${weekKeys.map(wk => {
               const w = weeks[wk];
+              const avgFul = w.fulN ? (w.ful/w.fulN).toFixed(1) : '—';
               return `<div class="wk-row">
                 <span>${fmtDate(w.start)} → ${fmtDate(w.end)}</span>
                 <span class="wk-meta">${w.n} fiche${w.n>1?'s':''}</span>
-                <span class="wk-meta">${w.calls}c · ${w.dm}dm · ${w.videos}v</span>
+                <span class="wk-meta">${w.hours.toFixed(1)}h · épan ${avgFul} · ${w.calls}c · BE ${w.wbPos}/${w.wbTot}</span>
                 <b>${w.ca.toFixed(0)}€</b>
               </div>`;
             }).join('')}
@@ -418,6 +506,64 @@ body{
             <div class="agg-tile plum"><b>${strk}</b><span>jours d'affilée</span></div>
             <div class="agg-tile indigo"><b>${entries.length}</b><span>total fiches</span></div>
           </div>
+
+          ${(() => {
+            // Compute new aggregates
+            const last7 = entries.filter(e=>{
+              const d=new Date(e.entry_date+'T00:00:00');
+              const cutoff=new Date();cutoff.setHours(0,0,0,0);cutoff.setDate(cutoff.getDate()-6);
+              return d>=cutoff;
+            });
+            const hours7 = last7.reduce((s,e)=>s+parseFloat(e.hours_worked||0),0);
+            const fulVals = last7.map(e=>parseInt(e.fulfillment||0)).filter(x=>x>0);
+            const fulAvg = fulVals.length ? (fulVals.reduce((s,x)=>s+x,0)/fulVals.length) : 0;
+            const wbPos7 = last7.reduce((s,e)=>s+wbPositiveCount(e.wellbeing_answers),0);
+            const wbTot7 = last7.reduce((s,e)=>s+wbTotal(e.wellbeing_answers),0);
+            return `<div class="agg-strip">
+              <div class="agg-tile"><b>${hours7.toFixed(1)}h</b><span>heures 7j</span></div>
+              <div class="agg-tile jade"><b>${fulAvg.toFixed(1)}</b><span>épan. moy. 7j</span></div>
+              <div class="agg-tile plum"><b>${wbPos7}/${wbTot7}</b><span>bien-être 7j</span></div>
+              <div class="agg-tile indigo"><b>${last7.length}</b><span>fiches 7j</span></div>
+            </div>`;
+          })()}
+
+          ${(() => {
+            // Aggregate wellbeing answers across all entries
+            const wbAgg = {};
+            entries.forEach(e=>{
+              const wb = e.wellbeing_answers||{};
+              Object.keys(wb).forEach(slug=>{
+                if(!wbAgg[slug]) wbAgg[slug]={yes:0,no:0};
+                wbAgg[slug][wb[slug]] = (wbAgg[slug][wb[slug]]||0) + 1;
+              });
+            });
+            const slugs = Object.keys(wbAgg);
+            if(!slugs.length) return '';
+            const cells = slugs.sort((a,b)=>{
+              const ta=wbAgg[a].yes+wbAgg[a].no, tb=wbAgg[b].yes+wbAgg[b].no;
+              return tb-ta;
+            }).map(slug=>{
+              const a=wbAgg[slug];
+              const total=a.yes+a.no;
+              const def = WB_POOL.find(q=>q.slug===slug);
+              const positive = def ? def.positive : 'yes';
+              const posCount = positive==='yes' ? a.yes : a.no;
+              const pct = total ? Math.round(posCount/total*100) : 0;
+              const cls = pct>=60 ? 'good' : pct<40 ? 'bad' : '';
+              const label = WB_LABELS[slug] || slug;
+              return `<div class="wb-cell ${cls}"><span>${label}</span><span class="wb-pct">${pct}%</span></div>`;
+            }).join('');
+            return `<div class="wb-panel"><h5>Bien-être · Vue d'ensemble (% positif)</h5><div class="wb-grid">${cells}</div></div>`;
+          })()}
+
+          ${(() => {
+            // Notes panel: show last 5 free_note entries with date
+            const noted = entries.filter(e=>e.free_note && e.free_note.trim().length>0).slice(0,5);
+            if(!noted.length) return '';
+            return `<div class="notes-panel"><h5>Notes libres récentes</h5>` +
+              noted.map(e=>`<div class="note-item"><span class="note-date">${fmtDate(e.entry_date)}</span>${(e.free_note||'').replace(/</g,'&lt;')}</div>`).join('') +
+              `</div>`;
+          })()}
 
           <div class="spark-wrap">
             <div class="spark-head"><h5>CA · 30 derniers jours</h5><em>${entries.length?fmtDate(entries[entries.length-1].entry_date):''} → aujourd'hui</em></div>
