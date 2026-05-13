@@ -169,6 +169,39 @@ body{
 .week-summary .wk-row b{font-family:var(--display);font-style:normal;font-weight:800;color:var(--ember)}
 .week-summary .wk-row .wk-meta{font-family:var(--mono);font-style:normal;font-size:9px;letter-spacing:.06em;color:var(--ink-mute)}
 
+/* PLATE METAPHOR — assiette de l'élève (admin view) */
+.plate-stage{display:flex;flex-direction:column;align-items:center;margin:16px 0 18px;padding:14px 12px;background:rgba(243,236,223,.45);border:1.5px solid rgba(26,22,20,.12);border-radius:4px}
+.plate-stage__caption{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--ink-mute);margin-bottom:10px}
+.plate-svg{width:min(220px,80%);height:auto;display:block;filter:drop-shadow(2px 4px 0 rgba(26,22,20,.08))}
+.plate-rim{fill:rgba(255,252,245,.95);stroke:var(--ink);stroke-width:2}
+.plate-rim-shadow{fill:none;stroke:rgba(26,22,20,.12);stroke-width:1}
+.plate-inner{fill:url(#coachPlateTexture);stroke:rgba(26,22,20,.08);stroke-width:.5}
+.plate-bubble{transition:r .5s cubic-bezier(.22,1,.36,1),opacity .3s;mix-blend-mode:multiply;opacity:.88}
+.plate-bubble--empty{opacity:.25;mix-blend-mode:normal}
+.plate-bubble__highlight{fill:rgba(255,255,255,.35);pointer-events:none}
+.plate-center-dot{fill:var(--ink);opacity:.25}
+.plate-ca-ring{fill:none;stroke:var(--gold);opacity:0;transition:stroke-width .5s,opacity .5s}
+.plate-ca-ring.is-on{opacity:.78}
+.plate-halo{fill:none;stroke-width:1.5;stroke-linecap:round;opacity:0}
+.plate-halo.is-on{opacity:.55}
+.plate-halo--pos{stroke:var(--jade);stroke-dasharray:5 6;animation:plate-halo-rotate 60s linear infinite}
+.plate-halo--neg{stroke:var(--crit);stroke-dasharray:2 4;opacity:.45!important}
+@keyframes plate-halo-rotate{from{stroke-dashoffset:0}to{stroke-dashoffset:-220}}
+.plate-cracks{opacity:0}
+.plate-cracks.is-on{opacity:.85}
+.plate-cracks path{fill:none;stroke:rgba(26,22,20,.22);stroke-width:1;stroke-dasharray:2 3;stroke-linecap:round}
+.plate-growth{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mute);margin-top:10px;font-weight:600;min-height:1.2em;text-align:center}
+.plate-growth.pos{color:var(--jade)}
+.plate-growth.neg{color:var(--crit)}
+.plate-growth.empty{color:var(--ink-mute);font-style:italic;font-family:var(--serif);text-transform:none;letter-spacing:0;font-size:.88rem;font-weight:400}
+.plate-legend{display:flex;flex-wrap:wrap;gap:6px 12px;justify-content:center;margin-top:10px;padding:0 4px;max-width:340px}
+.plate-legend .leg-item{font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--ink-soft);display:inline-flex;align-items:center;gap:4px;text-transform:uppercase;font-weight:500}
+.plate-legend .leg-item .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 1.5px rgba(255,252,245,.9),0 0 0 2.5px currentColor;opacity:.85}
+.plate-legend .leg-item b{font-family:var(--display);font-weight:800;font-style:normal;color:var(--ink);margin-left:2px;letter-spacing:0;text-transform:none;font-size:10.5px}
+@media (prefers-reduced-motion:reduce){
+  .plate-bubble,.plate-ca-ring,.plate-halo--pos{animation:none!important;transition:none!important}
+}
+
 .empty-state{text-align:center;padding:40px 20px;font-family:var(--serif);font-style:italic;color:var(--ink-mute);font-size:1.05rem}
 .error-state{text-align:center;padding:40px 20px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--crit)}
 .loading{text-align:center;padding:40px 20px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--ink-mute)}
@@ -381,6 +414,113 @@ body{
       return s + (d >= cutoff ? (e.ca_eur||0) : 0);
     }, 0);
   }
+  // ── Plate metaphor (admin view) ────────────────────────
+  const PLATE_SLOTS = [
+    {key:'hours',  angle:-90, color:'var(--jade)',   max:12,  label:'Heures', display:(e)=>parseFloat(e.hours_worked||0)+'h'},
+    {key:'calls',  angle:-18, color:'var(--gold)',   max:100, label:'Calls',  display:(e)=>e.calls||0},
+    {key:'ful',    angle: 54, color:'var(--ember)',  max:10,  label:'Épan.',  display:(e)=>parseInt(e.fulfillment||0)+'/10'},
+    {key:'wb',     angle:126, color:'var(--indigo)', max:5,   label:'B-être', display:(e)=>{const p=wbPositiveCount(e.wellbeing_answers);const t=Math.max(5,wbTotal(e.wellbeing_answers)||5);return p+'/'+t;}},
+    {key:'live',   angle:198, color:'var(--plum)',   max:1,   label:'Live',   display:(e)=>e.live?'oui':'non'}
+  ];
+  function slotValue(slot, e){
+    if(slot.key==='hours') return parseFloat(e.hours_worked||0);
+    if(slot.key==='calls') return e.calls||0;
+    if(slot.key==='ful')   return parseInt(e.fulfillment||0);
+    if(slot.key==='wb')    return wbPositiveCount(e.wellbeing_answers);
+    if(slot.key==='live')  return e.live?1:0;
+    return 0;
+  }
+  function bubbleRadius(value, max){
+    if(!max || value<=0) return 4;
+    return 4 + Math.min(1, value/max) * 20;
+  }
+  function plateGrowthPct(todayPts, history7){
+    if(!history7 || !history7.length) return null;
+    const avg = history7.reduce((s,e)=>s+pts(e),0)/history7.length;
+    if(avg <= 0) return null;
+    return ((todayPts - avg)/avg)*100;
+  }
+  function renderCoachPlateHTML(todayEntry, history7){
+    const e = todayEntry || {};
+    const isEmpty = !todayEntry || (
+      slotValue(PLATE_SLOTS[0],e)===0 && slotValue(PLATE_SLOTS[1],e)===0 &&
+      slotValue(PLATE_SLOTS[2],e)===0 && slotValue(PLATE_SLOTS[3],e)===0 && slotValue(PLATE_SLOTS[4],e)===0
+    );
+
+    const bubbles = PLATE_SLOTS.map(slot=>{
+      const v = slotValue(slot, e);
+      const r = bubbleRadius(v, slot.max);
+      const rad = (slot.angle * Math.PI)/180;
+      const cx = 120 + 38 * Math.cos(rad);
+      const cy = 120 + 38 * Math.sin(rad);
+      const cls = 'plate-bubble' + (v<=0?' plate-bubble--empty':'');
+      return `<g class="plate-portion" data-key="${slot.key}">
+        <circle class="${cls}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r.toFixed(1)}" fill="${slot.color}" />
+        <circle class="plate-bubble__highlight" cx="${(cx-r*0.3).toFixed(1)}" cy="${(cy-r*0.3).toFixed(1)}" r="${(r*0.35).toFixed(1)}" />
+      </g>`;
+    }).join('');
+
+    const ca = parseFloat(e.ca_eur||0);
+    const caWidth = ca > 0 ? Math.min(12, 2 + ca/200) : 0;
+    const caRing = ca > 0
+      ? `<circle class="plate-ca-ring is-on" cx="120" cy="120" r="${(112+caWidth/2).toFixed(1)}" stroke-width="${caWidth.toFixed(1)}" />`
+      : `<circle class="plate-ca-ring" cx="120" cy="120" r="114" stroke-width="2" />`;
+
+    const todayPts = todayEntry ? pts(todayEntry) : 0;
+    const growth = isEmpty ? null : plateGrowthPct(todayPts, history7);
+    let haloHTML = '<circle class="plate-halo" cx="120" cy="120" r="120" />';
+    let growthLabelHTML = '<div class="plate-growth empty">pas de fiche aujourd\'hui</div>';
+    if(!isEmpty){
+      if(growth === null){
+        growthLabelHTML = '<div class="plate-growth empty">première fiche · pas de référence 7j</div>';
+      } else if(growth >= 5){
+        haloHTML = `<circle class="plate-halo plate-halo--pos is-on" cx="120" cy="120" r="120" />`;
+        growthLabelHTML = `<div class="plate-growth pos">↑ +${Math.round(growth)}% vs 7 derniers jours</div>`;
+      } else if(growth <= -5){
+        haloHTML = `<circle class="plate-halo plate-halo--neg is-on" cx="120" cy="120" r="120" />`;
+        growthLabelHTML = `<div class="plate-growth neg">↓ ${Math.round(growth)}% vs 7 derniers jours</div>`;
+      } else {
+        growthLabelHTML = `<div class="plate-growth empty">~ stable vs 7 derniers jours (${growth>=0?'+':''}${Math.round(growth)}%)</div>`;
+      }
+    }
+    const cracksHTML = isEmpty ? `
+      <g class="plate-cracks is-on">
+        <path d="M62 88 Q92 116 100 142 Q106 168 130 178" />
+        <path d="M154 70 Q142 98 168 128" />
+        <path d="M170 162 Q182 146 162 122" />
+      </g>` : '<g class="plate-cracks"></g>';
+
+    const legendHTML = PLATE_SLOTS.map(slot=>`
+      <span class="leg-item" style="color:${slot.color}">
+        <span class="dot" style="background:${slot.color}"></span>
+        ${slot.label} <b>${slot.display(e)}</b>
+      </span>
+    `).join('');
+
+    return `<div class="plate-stage">
+      <div class="plate-stage__caption">✦ Assiette du jour${todayEntry?'':' (vide)'}</div>
+      <svg class="plate-svg" viewBox="0 0 240 240" role="img" aria-label="Assiette du jour">
+        <defs>
+          <radialGradient id="coachPlateTexture" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(243,236,223,0.85)" />
+            <stop offset="80%" stop-color="rgba(233,224,207,0.7)" />
+            <stop offset="100%" stop-color="rgba(220,210,190,0.65)" />
+          </radialGradient>
+        </defs>
+        ${haloHTML}
+        <circle class="plate-rim-shadow" cx="121" cy="123" r="110" />
+        <circle class="plate-rim" cx="120" cy="120" r="110" />
+        <circle class="plate-inner" cx="120" cy="120" r="100" />
+        ${caRing}
+        ${cracksHTML}
+        ${bubbles}
+        <circle class="plate-center-dot" cx="120" cy="120" r="2.5" />
+      </svg>
+      ${growthLabelHTML}
+      <div class="plate-legend">${legendHTML}</div>
+    </div>`;
+  }
+
   function sparkSVG(entries){
     // last 30 days CA bars
     const today = new Date(); today.setHours(0,0,0,0);
@@ -417,6 +557,8 @@ body{
       const name = s.full_name || s.first_name || s.email;
       const todayISO = new Date().toISOString().slice(0,10);
       const hasToday = entries.some(e => e.entry_date === todayISO);
+      const todayEntry = entries.find(e => e.entry_date === todayISO) || null;
+      const plateHistory7 = entries.filter(e => e.entry_date !== todayISO).slice(0, 7);
       const totalCA = entries.reduce((sum,e) => sum + (e.ca_eur||0), 0);
       const ca7 = sumCA(entries, 7);
       const ca30 = sumCA(entries, 30);
@@ -510,6 +652,8 @@ body{
           <div class="info-row"><span>Inscrit(e)</span><span>${new Date(s.joined_at).toLocaleDateString('fr-FR')}</span></div>
           <div class="info-row"><span>Aujourd'hui</span><span>${hasToday?'<span class="chip chip--ok">Fait ✓</span>':'<span class="chip chip--miss">En attente</span>'}</span></div>
           <div class="info-row"><span>CA total</span><span>${totalCA.toFixed(2)}€</span></div>
+
+          ${renderCoachPlateHTML(todayEntry, plateHistory7)}
 
           <div class="agg-strip">
             <div class="agg-tile"><b>${ca7.toFixed(0)}€</b><span>CA 7 jours</span></div>
