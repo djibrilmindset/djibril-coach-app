@@ -236,24 +236,14 @@ body{
 .qa-submit-btn:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink)}
 .qa-submit-btn:disabled{opacity:.5;pointer-events:none}
 
-/* LOGIN OVERLAY */
-.login-overlay{position:fixed;inset:0;background:rgba(243,236,223,.96);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px}
-.login-overlay[hidden]{display:none}
-.login-card{background:var(--paper);border:2px solid var(--ink);box-shadow:8px 8px 0 var(--ember-deep);padding:36px 32px;max-width:420px;width:100%;animation:fieldIn .4s ease}
-@keyframes fieldIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
-.login-card h2{font-family:var(--display);font-weight:900;font-size:1.6rem;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:10px}
-.login-card h2 .badge{font-family:var(--mono);font-size:10px;background:var(--ink);color:var(--paper);padding:4px 10px;border-radius:999px;letter-spacing:.14em;font-weight:600}
-.login-card p.sub{font-family:var(--serif);font-style:italic;color:var(--ink-soft);font-size:.95rem;margin-bottom:22px}
-.login-card label{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:6px}
-.login-card input[type=email]{width:100%;padding:13px 14px;font-family:var(--mono);font-size:14px;background:rgba(255,252,245,.95);border:1.5px solid var(--ink);border-radius:0;outline:none;margin-bottom:14px}
-.login-card input[type=email]:focus{border-color:var(--ember);background:#fff}
-.login-card button{width:100%;font-family:var(--mono);font-weight:600;font-size:11px;letter-spacing:.18em;text-transform:uppercase;background:var(--ink);color:var(--paper);border:1.5px solid var(--ink);padding:14px 24px;cursor:pointer;transition:all .15s}
-.login-card button:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ember-deep)}
-.login-card button:disabled{opacity:.5;pointer-events:none}
-.login-card .err{font-family:var(--mono);font-size:11px;color:var(--crit);margin-top:10px;padding:8px 12px;background:rgba(199,62,58,.08);border-left:3px solid var(--crit);animation:fieldIn .3s ease}
-.login-card .err[hidden]{display:none}
-.login-logout-btn{position:fixed;top:14px;right:14px;z-index:90;font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;background:rgba(255,252,245,.85);border:1.5px solid rgba(26,22,20,.2);padding:6px 12px;cursor:pointer;color:var(--ink-mute);font-weight:600}
-.login-logout-btn:hover{border-color:var(--ember);color:var(--ember)}
+/* BOOT LOADER — auto-bootstrap silencieux, pas de login visible */
+.boot-loader{position:fixed;inset:0;background:var(--paper);z-index:1000;display:flex;align-items:center;justify-content:center;transition:opacity .4s}
+.boot-loader[hidden]{display:none}
+.boot-loader__inner{text-align:center}
+.boot-loader__pulse{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#C73E3A,#e85d2c,#C8A951);box-shadow:0 0 40px rgba(199,62,58,.4);margin:0 auto 16px;animation:boot-pulse 1.4s ease-in-out infinite}
+.boot-loader__inner p{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-mute);font-weight:600}
+@keyframes boot-pulse{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.15);opacity:1}}
+.boot-error{position:fixed;inset:0;background:var(--paper);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:var(--serif);font-style:italic;color:var(--crit);font-size:1.05rem}
 
 .empty-state{text-align:center;padding:40px 20px;font-family:var(--serif);font-style:italic;color:var(--ink-mute);font-size:1.05rem}
 .error-state{text-align:center;padding:40px 20px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--crit)}
@@ -276,19 +266,13 @@ body{
 </head>
 <body>
 
-<!-- LOGIN OVERLAY (shown when no token) -->
-<div class="login-overlay" id="login-overlay">
-  <div class="login-card">
-    <h2>Coach <span class="badge">● Djibril</span></h2>
-    <p class="sub">Connexion réservée — accès admin Reset Ultra.</p>
-    <label for="login-email">Email coach</label>
-    <input type="email" id="login-email" placeholder="djibrilsylearn@gmail.com" autocomplete="email" autofocus>
-    <button id="login-btn">Se connecter</button>
-    <div class="err" id="login-err" hidden></div>
+<!-- Auto-bootstrap silencieux (l'URL est le secret, pas de login visible) -->
+<div class="boot-loader" id="boot-loader">
+  <div class="boot-loader__inner">
+    <div class="boot-loader__pulse"></div>
+    <p>Console coach</p>
   </div>
 </div>
-
-<button class="login-logout-btn" id="logout-btn" style="display:none">↩ Se déconnecter</button>
 
 <div class="cosmos" aria-hidden="true">
   <div class="cosmos__stars">✦   ·   ✧   ⋆   ✦   ·   ✧   ⋆   ✦   ·   ✧   ⋆   ✦   ·   ✧   ⋆   ✦   ·   ✧   ⋆
@@ -347,100 +331,44 @@ body{
   const overlay = document.getElementById('overlay');
   const modal = document.getElementById('modal');
 
-  // ── LOGIN ─────────────────────────────────────────────
+  // ── AUTO-BOOTSTRAP (URL = secret, pas de login visible) ──
   const TOKEN_KEY = 'dj_token';
   const USER_KEY = 'dj_user';
-  const loginOverlay = document.getElementById('login-overlay');
-  const logoutBtn = document.getElementById('logout-btn');
+  const COACH_EMAIL = 'djibrilsylearn@gmail.com'; // identité unique coach
+  const bootLoader = document.getElementById('boot-loader');
   let _coachUser = null;
 
-  function showLogin(){
-    loginOverlay.hidden = false;
-    logoutBtn.style.display = 'none';
-  }
-  function hideLogin(){
-    loginOverlay.hidden = true;
-    logoutBtn.style.display = 'block';
-  }
-  function logout(){
-    sessionStorage.removeItem(TOKEN_KEY);
-    sessionStorage.removeItem(USER_KEY);
-    _coachUser = null;
-    showLogin();
-  }
-
-  async function doLogin(){
-    const email = document.getElementById('login-email').value.trim().toLowerCase();
-    const errEl = document.getElementById('login-err');
-    const btn = document.getElementById('login-btn');
-    errEl.hidden = true;
-    if(!email || !email.includes('@')){
-      errEl.textContent = 'Email invalide';
-      errEl.hidden = false;
-      return;
+  async function bootstrapCoach(){
+    // 1. Si token déjà en sessionStorage ET utilisateur coach valide, utilise-le
+    const tk = sessionStorage.getItem(TOKEN_KEY);
+    const usr = sessionStorage.getItem(USER_KEY);
+    if(tk && usr){
+      try {
+        const u = JSON.parse(usr);
+        if(u && u.is_coach){ _coachUser = u; bootLoader.hidden = true; return; }
+      } catch {}
     }
-    btn.disabled = true;
-    btn.textContent = 'Connexion…';
+    // 2. Sinon login silencieux avec l'email coach
     try {
       const r = await fetch(API + '/auth/login', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({email}),
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({email: COACH_EMAIL}),
       });
       const data = await r.json();
-      if(!r.ok || !data.token){
-        errEl.textContent = data.error || 'Erreur de connexion';
-        errEl.hidden = false;
-        btn.disabled = false;
-        btn.textContent = 'Se connecter';
-        return;
-      }
-      // Vérifier is_coach
-      if(!data.student.is_coach){
-        errEl.textContent = 'Ce compte n\'est pas autorisé (accès coach uniquement)';
-        errEl.hidden = false;
-        btn.disabled = false;
-        btn.textContent = 'Se connecter';
-        return;
-      }
+      if(!r.ok || !data.token){ showBootError('Échec du bootstrap. Vérifie que ' + COACH_EMAIL + ' existe en base avec is_coach=true.'); return; }
+      if(!data.student.is_coach){ showBootError('Le compte coach n\'est pas configuré (is_coach=false)'); return; }
       sessionStorage.setItem(TOKEN_KEY, data.token);
       sessionStorage.setItem(USER_KEY, JSON.stringify(data.student));
       _coachUser = data.student;
-      hideLogin();
-      btn.disabled = false;
-      btn.textContent = 'Se connecter';
-      // Reload data
-      load();
-      loadPending();
+      bootLoader.hidden = true;
     } catch(e){
-      errEl.textContent = 'Erreur réseau : ' + (e.message||'inconnue');
-      errEl.hidden = false;
-      btn.disabled = false;
-      btn.textContent = 'Se connecter';
+      showBootError('Erreur réseau : ' + (e.message||'inconnue'));
     }
   }
-
-  // Check auth on init
-  const existingToken = sessionStorage.getItem(TOKEN_KEY);
-  const existingUser = sessionStorage.getItem(USER_KEY);
-  if(existingToken && existingUser){
-    try {
-      const u = JSON.parse(existingUser);
-      if(u && u.is_coach){
-        _coachUser = u;
-        hideLogin();
-      } else {
-        logout();
-      }
-    } catch { logout(); }
-  } else {
-    showLogin();
+  function showBootError(msg){
+    bootLoader.innerHTML = '<div class="boot-error">' + msg + '</div>';
   }
-  document.getElementById('login-btn').addEventListener('click', doLogin);
-  document.getElementById('login-email').addEventListener('keypress', (e) => {
-    if(e.key === 'Enter') doLogin();
-  });
-  logoutBtn.addEventListener('click', logout);
 
   async function load(){
     try {
@@ -1093,12 +1021,15 @@ body{
     if(e.key === 'Escape') overlay.hidden = true;
   });
 
-  // Load + auto-refresh (only if logged in)
-  if(_coachUser){
-    load();
-    loadPending();
-    setInterval(() => { if(_coachUser){ load(); loadPending(); } }, 30000);
-  }
+  // Auto-bootstrap puis load
+  (async () => {
+    await bootstrapCoach();
+    if(_coachUser){
+      load();
+      loadPending();
+      setInterval(() => { if(_coachUser){ load(); loadPending(); } }, 30000);
+    }
+  })();
 })();
 </script>
 
