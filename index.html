@@ -204,6 +204,38 @@ body{
   .plate-halo--pos{animation:none!important}
 }
 
+/* QA COACH SECTION */
+.qa-pending-section{margin-bottom:32px;padding:18px 20px;background:rgba(199,62,58,.06);border:2px solid var(--crit);box-shadow:4px 4px 0 rgba(199,62,58,.3)}
+.qa-pending-section h3{font-family:var(--display);font-weight:900;font-size:1.1rem;color:var(--crit);display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.qa-pending-section h3 .badge{font-family:var(--mono);font-size:11px;background:var(--crit);color:var(--paper);padding:3px 10px;border-radius:999px;letter-spacing:.1em}
+.qa-pending-empty{font-family:var(--serif);font-style:italic;color:var(--ink-mute);text-align:center;padding:18px 0}
+.qa-pending-item{padding:12px 14px;margin-bottom:8px;background:rgba(255,252,245,.8);border:1.5px solid rgba(26,22,20,.18);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:14px}
+.qa-pending-item:hover{border-color:var(--ember);transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ember)}
+.qa-pending-item__name{font-family:var(--display);font-weight:800;font-size:1rem;color:var(--ink);min-width:90px}
+.qa-pending-item__q{flex:1;font-family:var(--serif);font-style:italic;color:var(--ink-soft);font-size:.95rem}
+.qa-pending-item__time{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-mute);text-transform:uppercase}
+/* QA modal answer */
+.qa-modal-content{padding:0}
+.qa-thread-display{margin:16px 0;padding:14px 16px;background:rgba(243,236,223,.6);border-left:3px solid var(--indigo);border-radius:0 4px 4px 0}
+.qa-thread-msg{padding:8px 0;border-bottom:1px dotted rgba(26,22,20,.1);font-size:.95rem;line-height:1.45}
+.qa-thread-msg:last-child{border-bottom:none}
+.qa-thread-msg .role{font-family:var(--mono);font-size:9px;letter-spacing:.14em;font-weight:600;color:var(--ink-mute);text-transform:uppercase;margin-right:6px}
+.qa-answer-form{margin-top:16px}
+.qa-answer-form label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--ink-soft);margin-bottom:6px}
+.qa-answer-form textarea{width:100%;min-height:120px;padding:12px;font-family:var(--serif);font-size:.95rem;line-height:1.5;background:rgba(255,252,245,.85);border:1.5px solid rgba(26,22,20,.18);border-radius:4px;outline:none;resize:vertical}
+.qa-answer-form textarea:focus{border-color:var(--ember)}
+.qa-score-row{display:flex;align-items:center;gap:14px;margin-top:14px;padding:10px 12px;background:rgba(232,93,44,.06);border-left:3px solid var(--ember)}
+.qa-score-row label{margin:0;font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--ember-deep);font-weight:600}
+.qa-score-row input[type=range]{flex:1;accent-color:var(--ember)}
+.qa-score-row .score-value{font-family:var(--display);font-weight:900;font-size:1.5rem;color:var(--ember-deep);min-width:60px;text-align:right}
+.qa-broadcast-row{display:flex;align-items:center;gap:10px;margin-top:12px}
+.qa-broadcast-row label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink-soft);text-transform:uppercase;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px}
+.qa-broadcast-row input[type=checkbox]{accent-color:var(--ember);width:16px;height:16px;cursor:pointer}
+.qa-broadcast-note{font-family:var(--serif);font-style:italic;font-size:.85rem;color:var(--ink-mute);margin-top:6px}
+.qa-submit-btn{margin-top:18px;background:var(--ember-deep);color:var(--paper);border:1.5px solid var(--ember-deep);padding:14px 28px;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;transition:all .15s;width:100%}
+.qa-submit-btn:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink)}
+.qa-submit-btn:disabled{opacity:.5;pointer-events:none}
+
 .empty-state{text-align:center;padding:40px 20px;font-family:var(--serif);font-style:italic;color:var(--ink-mute);font-size:1.05rem}
 .error-state{text-align:center;padding:40px 20px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--crit)}
 .loading{text-align:center;padding:40px 20px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--ink-mute)}
@@ -256,6 +288,12 @@ body{
     <div class="kpi kpi--jade"><b>—</b><span>fiches du jour</span></div>
     <div class="kpi kpi--crit"><b>—</b><span>absent(e)s</span></div>
     <div class="kpi"><b>—</b><span>CA du jour</span></div>
+  </div>
+
+  <!-- QA PENDING -->
+  <div class="qa-pending-section" id="qa-pending-section" style="display:none">
+    <h3>Questions à traiter <span class="badge" id="qa-pending-count">0</span></h3>
+    <div id="qa-pending-list"></div>
   </div>
 
   <!-- STUDENTS -->
@@ -366,11 +404,12 @@ body{
   }
 
   // Helpers
+  // 2026-05-13 : live ne donne plus de points (réactivable plus tard via créneaux)
   function pts(e){
     const hrs = parseFloat(e.hours_worked||0);
     const ful = parseInt(e.fulfillment||0);
     const wbPos = wbPositiveCount(e.wellbeing_answers);
-    return Math.round(hrs*2 + ful*1 + (e.calls||0)*2 + wbPos*1 + (e.live?5:0));
+    return Math.round(hrs*2 + ful*1 + (e.calls||0)*2 + wbPos*1); // live*0
   }
   function saveCountIcon(sc){
     sc = parseInt(sc||0);
@@ -416,6 +455,123 @@ body{
       return s + (d >= cutoff ? (e.ca_eur||0) : 0);
     }, 0);
   }
+  // ── Q&A Coach ─────────────────────────────────────────
+  const QA_API = 'https://nbnbsljqtolzzuqnkyae.supabase.co/functions/v1/qa-handler';
+  // Coach uses local sessionStorage token (logged in as Djibril/coach)
+  function getCoachToken(){ return sessionStorage.getItem('dj_token') || sessionStorage.getItem('coach_token') || null; }
+  async function qaCallCoach(method, path, body){
+    const tok = getCoachToken();
+    if(!tok){ alert('Tu dois être connecté. Va sur /tracking.html?login'); return {error:'no-token'}; }
+    const opts = { method, headers: {'Content-Type':'application/json','Authorization':'Bearer '+tok} };
+    if(body) opts.body = JSON.stringify(body);
+    try {
+      const res = await fetch(QA_API + path, opts);
+      return await res.json();
+    } catch(e){ return {error: e.message||'network'}; }
+  }
+
+  async function loadPending(){
+    const r = await qaCallCoach('GET', '/qa/coach/pending', null);
+    const section = document.getElementById('qa-pending-section');
+    const list = document.getElementById('qa-pending-list');
+    const count = document.getElementById('qa-pending-count');
+    if(!section || !list || !count) return;
+    if(r.error || !r.pending || r.pending.length === 0){
+      section.style.display = 'none';
+      return;
+    }
+    section.style.display = 'block';
+    count.textContent = r.pending.length;
+    list.innerHTML = r.pending.map((q) => {
+      const s = q.students || {};
+      const name = s.first_name || s.email || 'élève';
+      const time = q.qualified_at ? timeAgo(q.qualified_at) : '—';
+      const txt = q.qualified_question || q.initial_question;
+      return `<div class="qa-pending-item" data-id="${q.id}">
+        <div class="qa-pending-item__name">${name}</div>
+        <div class="qa-pending-item__q">${txt}</div>
+        <div class="qa-pending-item__time">${time}</div>
+      </div>`;
+    }).join('');
+    list.querySelectorAll('.qa-pending-item').forEach(el => {
+      el.addEventListener('click', () => openAnswerModal(el.dataset.id, r.pending.find(q => q.id === el.dataset.id)));
+    });
+  }
+
+  function timeAgo(iso){
+    const d = new Date(iso); const diff = Date.now() - d.getTime();
+    const m = Math.floor(diff/60000);
+    if(m < 60) return `${m}min`;
+    const h = Math.floor(m/60);
+    if(h < 24) return `${h}h`;
+    return `${Math.floor(h/24)}j`;
+  }
+
+  function openAnswerModal(qid, q){
+    if(!q) return;
+    overlay.hidden = false;
+    const s = q.students || {};
+    const threadHTML = (q.thread||[]).map((m) => {
+      const role = m.role === 'student' ? (s.first_name || 'Élève') : 'IA creuseur';
+      return `<div class="qa-thread-msg"><span class="role">${role}</span>${m.text}</div>`;
+    }).join('');
+    modal.innerHTML = `
+      <div class="modal__head">
+        <h3>Répondre · ${s.first_name || 'élève'}</h3>
+        <button class="close" id="closeQaModal">✕</button>
+      </div>
+      <div class="modal__body qa-modal-content">
+        <p style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--ink-mute);text-transform:uppercase">${s.email||''}</p>
+        <div class="qa-thread-display">
+          <h5 style="font-family:var(--display);font-weight:800;font-size:.9rem;margin-bottom:8px;color:var(--indigo)">Thread de creusage</h5>
+          ${threadHTML}
+        </div>
+        <div style="margin-top:14px;padding:12px;background:rgba(232,93,44,.08);border-left:3px solid var(--ember)">
+          <h5 style="font-family:var(--display);font-weight:800;font-size:.95rem;margin-bottom:6px;color:var(--ember-deep)">Question qualifiée</h5>
+          <p style="font-family:var(--serif);font-style:italic;font-size:1rem">${q.qualified_question || q.initial_question}</p>
+        </div>
+        <div class="qa-answer-form">
+          <label for="qa-answer-input">Ta réponse :</label>
+          <textarea id="qa-answer-input" placeholder="Réponse complète, structurée, qui débloque..."></textarea>
+        </div>
+        <div class="qa-score-row">
+          <label for="qa-score-input">Note pertinence :</label>
+          <input type="range" id="qa-score-input" min="0" max="100" step="5" value="70" oninput="document.getElementById('qa-score-display').textContent=this.value">
+          <span class="score-value" id="qa-score-display">70</span>
+        </div>
+        <div class="qa-broadcast-row">
+          <label><input type="checkbox" id="qa-broadcast" checked> Diffuser à toute la cohorte (mail pattern interrupt)</label>
+        </div>
+        <p class="qa-broadcast-note">Si activé : un mail avec titre agressif sera envoyé à tous les autres élèves actifs.</p>
+        <button class="qa-submit-btn" id="qa-submit-answer">Enregistrer + envoyer ✦</button>
+      </div>
+    `;
+    document.getElementById('closeQaModal').addEventListener('click', () => overlay.hidden = true);
+    document.getElementById('qa-submit-answer').addEventListener('click', () => submitCoachAnswer(qid));
+  }
+
+  async function submitCoachAnswer(qid){
+    const ans = document.getElementById('qa-answer-input').value.trim();
+    if(ans.length < 10){ alert('Réponse trop courte (10+ caractères)'); return; }
+    const score = parseInt(document.getElementById('qa-score-input').value);
+    const broadcast = document.getElementById('qa-broadcast').checked;
+    const btn = document.getElementById('qa-submit-answer');
+    btn.disabled = true;
+    btn.textContent = 'Envoi en cours…';
+    const r = await qaCallCoach('POST', '/qa/coach/answer/'+qid, { answer: ans, pertinence_score: score, broadcast });
+    if(r.error){
+      alert('Erreur: ' + r.error);
+      btn.disabled = false;
+      btn.textContent = 'Enregistrer + envoyer ✦';
+      return;
+    }
+    btn.textContent = '✓ Envoyée';
+    setTimeout(() => {
+      overlay.hidden = true;
+      loadPending();
+    }, 800);
+  }
+
   // ── Plate metaphor v2 figurative (admin view) ─────────
   const PLATE_VIEWBOX_C = {w:300, h:240, cx:150, cy:130, rx:100, ry:42};
 
@@ -811,7 +967,8 @@ body{
 
   // Load + auto-refresh
   load();
-  setInterval(load, 30000);
+  loadPending();
+  setInterval(() => { load(); loadPending(); }, 30000);
 })();
 </script>
 
