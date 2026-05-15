@@ -84,10 +84,67 @@ body{
 .kpi--crit b{color:var(--crit)}
 .kpi--jade b{color:var(--jade)}
 
+/* === MENTAL ALERTS (top priority, 2026-05-15) ============================== */
+.mental-alerts{margin-bottom:20px;padding:18px 20px;background:linear-gradient(155deg,rgba(199,62,58,.08) 0%,rgba(212,149,26,.06) 100%);border:2px solid var(--crit);box-shadow:5px 5px 0 rgba(199,62,58,.2)}
+.mental-alerts h3{font-family:var(--display);font-weight:900;font-size:1.05rem;color:var(--crit);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.mental-alerts h3::before{content:"⚠";font-size:1.2em}
+.mental-alerts .ma-sub{font-family:var(--serif);font-style:italic;color:var(--ink-soft);font-size:.88rem;margin-bottom:14px;line-height:1.4}
+.mental-alerts-empty{font-family:var(--serif);font-style:italic;color:var(--jade);font-size:.95rem;text-align:center;padding:8px 0}
+.mental-alerts-empty::before{content:"✓ ";font-weight:700}
+.ma-row{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:10px 12px;margin-bottom:6px;background:rgba(255,252,245,.85);border-left:3px solid var(--crit);cursor:pointer;transition:all .12s}
+.ma-row:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--crit)}
+.ma-row:last-child{margin-bottom:0}
+.ma-row.warn{border-left-color:var(--warn)}
+.ma-row.warn:hover{box-shadow:3px 3px 0 var(--warn)}
+.ma-row__name{font-family:var(--display);font-weight:800;font-size:.98rem;min-width:80px}
+.ma-row__signals{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--ink-soft);display:flex;flex-wrap:wrap;gap:6px}
+.ma-row__signals .sig{padding:2px 7px;border-radius:999px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.ma-row__signals .sig.crit{background:rgba(199,62,58,.18);color:var(--crit)}
+.ma-row__signals .sig.warn{background:rgba(212,149,26,.18);color:var(--gold)}
+.ma-row__mood{font-family:var(--serif);font-style:italic;color:var(--plum);font-size:.95rem;text-align:right;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* mini meter (3 horizontal bars: energy / drive / stress) for student row */
+.mini-meters{display:flex;gap:3px;align-items:center}
+.mini-meter{display:flex;flex-direction:column;align-items:center;gap:2px;font-family:var(--mono);font-size:8px;letter-spacing:.04em;color:var(--ink-mute);text-transform:uppercase;font-weight:600}
+.mini-meter__bar{width:22px;height:6px;background:rgba(26,22,20,.1);border-radius:2px;overflow:hidden;position:relative}
+.mini-meter__fill{position:absolute;left:0;top:0;bottom:0;border-radius:2px;transition:width .3s}
+.mini-meter__fill.energy{background:linear-gradient(90deg,var(--gold),var(--ember))}
+.mini-meter__fill.drive{background:linear-gradient(90deg,var(--jade),#34c987)}
+.mini-meter__fill.stress{background:linear-gradient(90deg,var(--warn),var(--crit))}
+.mini-meter__val{font-size:8px;font-weight:700}
+.mini-meter__val.lo{color:var(--crit)}
+.mini-meter__val.hi{color:var(--crit)}
+.mini-meter__val.good{color:var(--jade)}
+.mood-chip{display:inline-block;padding:3px 9px;border-radius:999px;background:rgba(107,58,79,.12);color:var(--plum);font-family:var(--display);font-weight:700;font-style:italic;font-size:.8rem;letter-spacing:.01em;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+
+/* "Voir plus" toggle pour cacher CA/calls/etc. par défaut */
+.toggle-detail{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);background:transparent;border:1px solid rgba(26,22,20,.15);padding:4px 10px;border-radius:999px;cursor:pointer;margin-left:8px}
+.toggle-detail:hover{border-color:var(--ember);color:var(--ember)}
+.toggle-detail.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+/* Student row CONDENSED (mode default) — only essentials */
+.student-row-condensed{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:12px;padding:11px 14px;background:rgba(255,252,245,.6);border:1.5px solid rgba(26,22,20,.12);cursor:pointer;transition:all .12s}
+.student-row-condensed:hover{border-color:var(--ember);transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ember-soft)}
+.student-row-condensed.has-alert{border-left:4px solid var(--crit)}
+.student-row-condensed.has-warn{border-left:4px solid var(--warn)}
+.student-row-condensed__name{font-family:var(--display);font-weight:800;font-size:1rem;line-height:1.1}
+.student-row-condensed__name small{display:block;font-family:var(--mono);font-size:8.5px;font-weight:500;color:var(--ink-mute);letter-spacing:.04em;margin-top:2px}
+.student-row-condensed__center{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.status-dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.status-dot.ok{background:var(--jade);box-shadow:0 0 0 3px rgba(29,138,111,.2)}
+.status-dot.miss{background:var(--crit);box-shadow:0 0 0 3px rgba(199,62,58,.2)}
+
+/* Detail mode (revealed when "voir détail" toggled) */
+.student-extras{display:none;font-family:var(--mono);font-size:10px;color:var(--ink-mute);letter-spacing:.04em}
+.show-extras .student-extras{display:flex;align-items:center;gap:10px}
+.student-extras .ex-item{display:inline-flex;align-items:center;gap:3px}
+.student-extras .ex-item b{font-family:var(--display);font-weight:800;color:var(--ember);font-style:normal}
+
 /* STUDENTS TABLE */
 .students-section{margin-bottom:40px}
-.students-section h3{font-family:var(--display);font-weight:900;font-size:1.1rem;color:var(--ink);margin-bottom:16px}
-.student-grid{display:flex;flex-direction:column;gap:8px}
+.students-section h3{font-family:var(--display);font-weight:900;font-size:1.1rem;color:var(--ink);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.students-section h3 .count-hint{font-family:var(--mono);font-size:9px;font-weight:500;color:var(--ink-mute);letter-spacing:.1em;text-transform:uppercase}
+.student-grid{display:flex;flex-direction:column;gap:6px}
 .student-row{display:grid;grid-template-columns:1fr auto auto 90px;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,252,245,.6);border:1.5px solid rgba(26,22,20,.15);cursor:pointer;transition:all .15s}
 .student-row:hover{border-color:var(--ember);transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ember);background:rgba(255,252,245,.9)}
 .student-row__name{font-family:var(--display);font-weight:800;font-size:1.05rem;color:var(--ink)}
@@ -307,15 +364,26 @@ body{
     <div class="kpi"><b>—</b><span>CA du jour</span></div>
   </div>
 
+  <!-- MENTAL ALERTS — strictement nécessaire en haut -->
+  <div class="mental-alerts" id="mental-alerts" style="display:none">
+    <h3>Attention immédiate</h3>
+    <p class="ma-sub">Élèves avec un signal mental critique aujourd'hui — appelle-les ce soir.</p>
+    <div id="mental-alerts-list"></div>
+  </div>
+
   <!-- QA PENDING -->
   <div class="qa-pending-section" id="qa-pending-section" style="display:none">
     <h3>Questions à traiter <span class="badge" id="qa-pending-count">0</span></h3>
     <div id="qa-pending-list"></div>
   </div>
 
-  <!-- STUDENTS -->
+  <!-- STUDENTS — vue condensée par défaut, focus mental -->
   <div class="students-section">
-    <h3>Élèves</h3>
+    <h3>
+      Élèves
+      <span class="count-hint" id="students-count">—</span>
+      <button class="toggle-detail" id="toggle-extras" title="Afficher CA / calls / heures">+ détail prod</button>
+    </h3>
     <div id="students-list"><div class="loading">Chargement...</div></div>
   </div>
 </div>
@@ -370,6 +438,53 @@ body{
     bootLoader.innerHTML = '<div class="boot-error">' + msg + '</div>';
   }
 
+  // ── Mental state helpers ─────────────────────────────────
+  function mentalSignals(e){
+    const ms = (e && e.mental_state) || {};
+    const signals = [];
+    const energy = parseInt(ms.energy);
+    const drive  = parseInt(ms.drive);
+    const stress = parseInt(ms.stress);
+    if(Number.isFinite(stress) && stress >= 8) signals.push({lvl:'crit', tag:'stress fort', code:'stress'});
+    if(Number.isFinite(drive)  && drive  <= 3) signals.push({lvl:'crit', tag:'envie au sol', code:'drive_low'});
+    if(Number.isFinite(energy) && energy <= 3) signals.push({lvl:'crit', tag:'énergie basse', code:'energy_low'});
+    // Niveau warn (intermédiaire)
+    if(Number.isFinite(stress) && stress === 7) signals.push({lvl:'warn', tag:'tension', code:'stress_warn'});
+    if(Number.isFinite(drive)  && drive  === 4) signals.push({lvl:'warn', tag:'drive faible', code:'drive_warn'});
+    return signals;
+  }
+  function maxSignalLvl(signals){
+    if(signals.some(s=>s.lvl==='crit')) return 'crit';
+    if(signals.some(s=>s.lvl==='warn')) return 'warn';
+    return null;
+  }
+  function metersHTML(e){
+    const ms = (e && e.mental_state) || {};
+    const energy = parseInt(ms.energy);
+    const drive  = parseInt(ms.drive);
+    const stress = parseInt(ms.stress);
+    function meter(label, val, type){
+      if(!Number.isFinite(val)) return `<div class="mini-meter"><div class="mini-meter__bar"></div><span>${label}</span></div>`;
+      const pct = Math.max(0, Math.min(100, val*10));
+      // classify
+      let cls = '';
+      if(type==='stress'){ cls = val>=8?'hi':(val<=3?'good':''); }
+      else { cls = val<=3?'lo':(val>=7?'good':''); }
+      return `<div class="mini-meter">
+        <div class="mini-meter__bar"><div class="mini-meter__fill ${type}" style="width:${pct}%"></div></div>
+        <span class="mini-meter__val ${cls}">${label}${val}</span>
+      </div>`;
+    }
+    return `<div class="mini-meters" title="Énergie · Drive · Stress (0-10)">
+      ${meter('E', energy, 'energy')}${meter('D', drive, 'drive')}${meter('S', stress, 'stress')}
+    </div>`;
+  }
+  function moodChip(e){
+    const w = e && e.mental_state && e.mental_state.mood_word;
+    if(!w) return '';
+    return `<span class="mood-chip" title="État mental du jour">"${w}"</span>`;
+  }
+
   async function load(){
     try {
       const [students, stats] = await Promise.all([
@@ -377,48 +492,126 @@ body{
         fetch(API + '/coach/stats').then(r=>r.json())
       ]);
 
-      // KPIs
+      // KPIs — focus sur l'essentiel (CA déplacé en détail toggle)
+      const filled = stats.filled||0, missing = stats.missing||0;
+      const total  = stats.total||0;
+      let nbAlerts = 0;
+      (students||[]).forEach(s=>{ if(maxSignalLvl(mentalSignals(s.today_entry||{}))==='crit') nbAlerts++; });
       document.getElementById('kpi').innerHTML = `
-        <div class="kpi"><b>${stats.total||0}</b><span>total élèves</span></div>
-        <div class="kpi kpi--jade"><b>${stats.filled||0}</b><span>fiches du jour</span></div>
-        <div class="kpi kpi--crit"><b>${stats.missing||0}</b><span>absent(e)s</span></div>
-        <div class="kpi"><b>${(stats.ca_total||0).toFixed(0)}€</b><span>CA du jour</span></div>
+        <div class="kpi"><b>${total}</b><span>élèves</span></div>
+        <div class="kpi kpi--jade"><b>${filled}</b><span>remplies</span></div>
+        <div class="kpi kpi--crit"><b>${missing}</b><span>manquant(e)s</span></div>
+        <div class="kpi kpi--crit"><b>${nbAlerts}</b><span>alertes mental</span></div>
       `;
 
-      // Students list
-      if(!students || !students.length){
-        document.getElementById('students-list').innerHTML = '<div class="empty-state">Aucun élève pour le moment.</div>';
-        return;
+      // ─── MENTAL ALERTS — élèves nécessitant attention immédiate ───
+      const alertsArea = document.getElementById('mental-alerts');
+      const alertsList = document.getElementById('mental-alerts-list');
+      const alertRows = [];
+      (students||[]).forEach(s=>{
+        const e = s.today_entry || {};
+        const sigs = mentalSignals(e);
+        const lvl = maxSignalLvl(sigs);
+        if(!lvl) return;
+        const name = s.full_name || s.first_name || s.email;
+        const friction = (e.mental_state && e.mental_state.friction) ? `<span style="font-style:italic;color:var(--ink-mute);font-family:var(--serif);font-size:.85rem">${(e.mental_state.friction||'').slice(0,80)}${(e.mental_state.friction||'').length>80?'…':''}</span>` : '';
+        alertRows.push({lvl, html: `<div class="ma-row ${lvl==='warn'?'warn':''}" data-id="${s.id}">
+          <div class="ma-row__name">${name}</div>
+          <div class="ma-row__signals">
+            ${sigs.map(sig=>`<span class="sig ${sig.lvl}">${sig.tag}</span>`).join('')}
+            ${friction}
+          </div>
+          <div class="ma-row__mood">${(e.mental_state && e.mental_state.mood_word) ? '"'+e.mental_state.mood_word+'"' : ''}</div>
+        </div>`});
+      });
+      if(alertRows.length){
+        // crit avant warn
+        alertRows.sort((a,b)=> (a.lvl==='crit'?-1:1) - (b.lvl==='crit'?-1:1));
+        alertsArea.style.display = '';
+        alertsList.innerHTML = alertRows.map(r=>r.html).join('');
+        alertsList.querySelectorAll('.ma-row').forEach(row=>{
+          row.addEventListener('click', ()=>showDetail(row.dataset.id));
+        });
+      } else if(filled > 0) {
+        alertsArea.style.display = '';
+        alertsList.innerHTML = '<div class="mental-alerts-empty">RAS — aucun élève en alerte mentale aujourd\'hui</div>';
+      } else {
+        alertsArea.style.display = 'none';
       }
 
-      const now = new Date();
+      // Students list — VUE CONDENSÉE (détails prod cachés, focus mental)
+      if(!students || !students.length){
+        document.getElementById('students-list').innerHTML = '<div class="empty-state">Aucun élève pour le moment.</div>';
+        document.getElementById('students-count').textContent = '0';
+        return;
+      }
+      document.getElementById('students-count').textContent = `${students.length} en suivi`;
+
+      // Tri : alertes en haut, puis remplies, puis manquants
+      const sorted = [...students].sort((a,b)=>{
+        const la = maxSignalLvl(mentalSignals(a.today_entry||{}));
+        const lb = maxSignalLvl(mentalSignals(b.today_entry||{}));
+        const scoreA = la==='crit'?0 : la==='warn'?1 : a.has_filled?2 : 3;
+        const scoreB = lb==='crit'?0 : lb==='warn'?1 : b.has_filled?2 : 3;
+        if(scoreA !== scoreB) return scoreA - scoreB;
+        return (a.first_name||a.email).localeCompare(b.first_name||b.email);
+      });
+
       document.getElementById('students-list').innerHTML = '<div class="student-grid">' +
-        students.map(s => {
-          const lastTime = s.today_entry ? 'Aujourd\'hui' : (s.has_filled ? 'Récent' : '—');
-          const statusClass = s.has_filled ? 'chip--ok' : 'chip--miss';
-          const statusText = s.has_filled ? 'Fait ✓' : 'En attente';
+        sorted.map(s => {
+          const e = s.today_entry || {};
           const name = s.full_name || s.first_name || s.email;
-          return `<div class="student-row" data-id="${s.id}">
-            <div>
-              <div class="student-row__name">${name}</div>
-              <div class="student-row__email">${s.email}</div>
+          const sigs = mentalSignals(e);
+          const lvl = maxSignalLvl(sigs);
+          const alertCls = lvl==='crit'?'has-alert':(lvl==='warn'?'has-warn':'');
+          const dot = s.has_filled ? 'ok' : 'miss';
+          // Détails prod cachés par défaut, affichés via toggle .show-extras
+          const ca = (e.ca_eur||0);
+          const calls = (e.calls||0);
+          const hours = (e.hours_worked||0);
+          return `<div class="student-row-condensed ${alertCls}" data-id="${s.id}">
+            <span class="status-dot ${dot}" title="${s.has_filled?'Fiche faite':'Manquant'}"></span>
+            <div class="student-row-condensed__name">
+              ${name}
+              <small>${s.email}</small>
             </div>
-            <div class="student-row__time">${lastTime}</div>
-            <div class="student-row__status"><span class="chip ${statusClass}">${statusText}</span></div>
-            <div style="font-family:var(--display);font-weight:800;text-align:right;color:var(--ember)">${(s.today_entry?.ca_eur||0).toFixed(0)}€</div>
+            <div class="student-row-condensed__center">
+              ${moodChip(e)}
+              ${s.has_filled ? metersHTML(e) : '<span style="font-family:var(--mono);font-size:9px;color:var(--ink-mute);letter-spacing:.1em;text-transform:uppercase">— pas rempli</span>'}
+            </div>
+            <div class="student-extras">
+              <span class="ex-item">${hours}<b>h</b></span>
+              <span class="ex-item">${calls}<b>calls</b></span>
+              <span class="ex-item">${ca.toFixed(0)}<b>€</b></span>
+            </div>
           </div>`;
         }).join('') +
         '</div>';
 
       // Click → detail
-      document.querySelectorAll('.student-row').forEach(row => {
+      document.querySelectorAll('.student-row-condensed').forEach(row => {
         row.addEventListener('click', () => showDetail(row.dataset.id));
       });
 
     } catch(e){
+      console.error(e);
       document.getElementById('students-list').innerHTML = '<div class="error-state">Erreur de connexion au serveur.</div>';
     }
   }
+
+  // Toggle "détail prod" — révèle CA/calls/heures
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const tg = document.getElementById('toggle-extras');
+    if(tg){
+      tg.addEventListener('click', ()=>{
+        const grid = document.querySelector('.student-grid');
+        if(!grid) return;
+        const on = grid.classList.toggle('show-extras');
+        tg.classList.toggle('on', on);
+        tg.textContent = on ? '− masquer prod' : '+ détail prod';
+      });
+    }
+  });
 
   // Wellbeing pool — same as student app (used for positive scoring)
   const WB_POOL = [
@@ -913,12 +1106,69 @@ body{
         </div>
         <div class="modal__body">
           <div class="info-row"><span>Email</span><span>${s.email}</span></div>
-          <div class="info-row"><span>Inscrit(e)</span><span>${new Date(s.joined_at).toLocaleDateString('fr-FR')}</span></div>
           <div class="info-row"><span>Aujourd'hui</span><span>${hasToday?'<span class="chip chip--ok">Fait ✓</span>':'<span class="chip chip--miss">En attente</span>'}</span></div>
-          <div class="info-row"><span>CA total</span><span>${totalCA.toFixed(2)}€</span></div>
 
-          ${renderCoachPlateHTML(todayEntry, plateHistory7)}
+          ${(() => {
+            // ── MENTAL TODAY — section prioritaire (2026-05-15) ──
+            const e = todayEntry;
+            if(!e || !e.mental_state){
+              return `<div class="mental-today" style="margin:18px 0;padding:14px 16px;background:rgba(243,236,223,.5);border-left:3px solid var(--ink-mute);border-radius:0 4px 4px 0;font-family:var(--serif);font-style:italic;color:var(--ink-mute);font-size:.92rem">— pas de mental check rempli aujourd'hui</div>`;
+            }
+            const ms = e.mental_state;
+            const sigs = mentalSignals(e);
+            const lvl = maxSignalLvl(sigs);
+            const borderColor = lvl==='crit'?'var(--crit)':(lvl==='warn'?'var(--warn)':'var(--jade)');
+            const energy = parseInt(ms.energy);
+            const drive  = parseInt(ms.drive);
+            const stress = parseInt(ms.stress);
+            function bigMeter(label, val, type){
+              if(!Number.isFinite(val)) return `<div style="text-align:center"><div style="font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--ink-mute);text-transform:uppercase;font-weight:600">${label}</div><div style="font-family:var(--display);font-weight:900;font-size:1.6rem;color:var(--ink-mute)">—</div></div>`;
+              let color = 'var(--ember)';
+              if(type==='stress'){ color = val>=8?'var(--crit)':(val<=3?'var(--jade)':'var(--gold)'); }
+              else { color = val<=3?'var(--crit)':(val>=7?'var(--jade)':'var(--gold)'); }
+              return `<div style="text-align:center;padding:6px 0">
+                <div style="font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--ink-mute);text-transform:uppercase;font-weight:600;margin-bottom:4px">${label}</div>
+                <div style="font-family:var(--display);font-weight:900;font-size:1.8rem;color:${color};line-height:1">${val}<span style="font-size:.55em;color:var(--ink-mute);font-weight:500">/10</span></div>
+              </div>`;
+            }
+            return `<div class="mental-today" style="margin:18px 0;padding:18px 20px;background:linear-gradient(155deg,rgba(232,93,44,.04) 0%,rgba(74,60,140,.04) 100%);border:2px solid ${borderColor};box-shadow:4px 4px 0 ${borderColor}33">
+              <h4 style="margin:0 0 12px;font-family:var(--display);font-weight:900;font-size:1.05rem;color:var(--ink);display:flex;align-items:center;gap:8px">
+                ⚡ Mental aujourd'hui
+                ${ms.mood_word ? `<span class="mood-chip" style="margin-left:4px">"${ms.mood_word}"</span>` : ''}
+                ${sigs.length ? `<span style="margin-left:auto;font-family:var(--mono);font-size:9px;letter-spacing:.1em">${sigs.map(s=>`<span class="sig ${s.lvl}" style="padding:2px 7px;border-radius:999px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:${s.lvl==='crit'?'rgba(199,62,58,.18)':'rgba(212,149,26,.18)'};color:${s.lvl==='crit'?'var(--crit)':'var(--gold)'}">${s.tag}</span>`).join(' ')}</span>` : ''}
+              </h4>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px 0;background:rgba(255,252,245,.5);border-radius:4px">
+                ${bigMeter('Énergie', energy, 'energy')}
+                ${bigMeter('Drive',   drive,  'drive')}
+                ${bigMeter('Stress',  stress, 'stress')}
+              </div>
+              ${ms.friction ? `<div style="margin-top:12px;padding:10px 12px;background:rgba(255,252,245,.7);border-left:3px solid var(--ember);font-family:var(--serif);font-style:italic;color:var(--ink-soft);font-size:.95rem;line-height:1.45">
+                <div style="font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--ember-deep);text-transform:uppercase;font-weight:600;margin-bottom:4px">Ce qui a coûté le plus :</div>
+                ${(ms.friction||'').replace(/</g,'&lt;')}
+              </div>` : ''}
+              ${e.free_note ? `<div style="margin-top:8px;padding:10px 12px;background:rgba(74,60,140,.06);border-left:3px solid var(--indigo);font-family:var(--serif);font-style:italic;color:var(--ink-soft);font-size:.92rem">
+                <div style="font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--indigo);text-transform:uppercase;font-weight:600;margin-bottom:4px">Note libre :</div>
+                ${(e.free_note||'').replace(/</g,'&lt;')}
+              </div>` : ''}
+            </div>`;
+          })()}
 
+          <!-- Détails secondaires — collapse par défaut -->
+          <details style="margin:14px 0 8px">
+            <summary style="cursor:pointer;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--ink-mute);padding:6px 0">▸ Inscription · CA total · Plate · Bien-être (cliquer pour ouvrir)</summary>
+            <div style="margin-top:12px">
+              <div class="info-row"><span>Inscrit(e)</span><span>${new Date(s.joined_at).toLocaleDateString('fr-FR')}</span></div>
+              <div class="info-row"><span>CA total</span><span>${totalCA.toFixed(2)}€</span></div>
+              ${renderCoachPlateHTML(todayEntry, plateHistory7)}
+            </div>
+          </details>
+
+          <!-- masqué : plate déjà dans details ci-dessus, on retire le rendu duplicate ci-dessous -->
+          ${''}
+
+          <h4 style="margin:24px 0 10px;font-family:var(--display);font-weight:900;font-size:1rem;color:var(--ink);border-top:1.5px dotted rgba(26,22,20,.12);padding-top:18px;display:flex;align-items:center;gap:8px">
+            <span style="opacity:.7">▸</span> Production · Performance
+          </h4>
           <div class="agg-strip">
             <div class="agg-tile"><b>${ca7.toFixed(0)}€</b><span>CA 7 jours</span></div>
             <div class="agg-tile jade"><b>${ca30.toFixed(0)}€</b><span>CA 30 jours</span></div>
